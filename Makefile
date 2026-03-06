@@ -7,12 +7,15 @@ CMD_DIR = CMD
 SRC = $(SRC_DIR)/Auth.cpp \
       $(SRC_DIR)/Channel.cpp \
       $(SRC_DIR)/Parser.cpp \
+	  $(SRC_DIR)/Fakeserver.cpp \
       $(CMD_DIR)/INVITE.cpp \
       $(CMD_DIR)/JOIN.cpp \
       $(CMD_DIR)/KICK.cpp \
       $(CMD_DIR)/MODE.cpp \
       $(CMD_DIR)/PRIVMSG.cpp \
-      $(CMD_DIR)/TOPIC.cpp
+      $(CMD_DIR)/TOPIC.cpp \
+	  $(SRC_DIR)/main.cpp \
+	 
 
 HEADERS = $(INC_DIR)/Channel.hpp \
           $(INC_DIR)/IClient.hpp \

@@ -3,10 +3,6 @@ A socket is an endpoint that enables two processes to communicate with each othe
 
 TODO
 
-handleNick:
-
-The NICK command is the trickiest part of authentication because you must check the entire server to ensure no other client is using that name. This requires a function from your friend's Server class that returns a list of all current clients.
-
 PRIVMSG: Used to send private messages to a specific user or an entire channel.
 
 

@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/02/22 02:49:52 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/03/06 01:22:04 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ void Channel::addMember(IClient *client)
 	if (client)
 		members[client->getFd()] = client;
 }
-
+// The [] operator is the primary way to interact with a std::map.
+// If client->getFd() (for example, 5) does not exist in the tree, 
+//the map allocates memory, creates a new node with key 5, and stores the pointer. 
+// If key 5 already exists, it simply overwrites the old pointer.
 void Channel::removeMember(int fd)
 {
 	members.erase(fd);
@@ -61,13 +64,15 @@ void Channel::addOperator(int fd)
 		operators.push_back(fd);
 }
 
+
 void Channel::removeOperator(int fd)
 {
 	std::vector<int>::iterator it = std::find(operators.begin(), operators.end(), fd);
 	if (it != operators.end())
 		operators.erase(it);
 }
-
+//to delete items from a vector we must provid its memory address
+// we use find to get that.
 bool Channel::isOperator(int fd) const
 {
 	return std::find(operators.begin(), operators.end(), fd) != operators.end();
