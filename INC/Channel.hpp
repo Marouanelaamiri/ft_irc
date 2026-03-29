@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:11 by malaamir          #+#    #+#             */
-/*   Updated: 2026/02/22 02:49:43 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/03/29 13:59:47 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ private:
 	std::string name;		  // Must start with # or &
 	std::string topic;		  // Set via TOPIC command
 	std::string creationTime; // Timestamp for RPL_CREATIONTIME (329)
+	std::string topicsetter;	  // Optional topic setter for RPL_TOPIC (332)
+	std::string topicsettime;  // Optional topic set time for RPL_TOPIC (332)
 
 	// --- Mode State (Subject Requirements) ---
 	bool inviteOnly;  // Mode i
@@ -50,6 +52,10 @@ public:
 	std::string getTopic() const;
 	std::string getCreationTime() const;
 	size_t getMemberCount() const;
+	std::string getTopicSetter() const;
+	std::string getTopicSetTime() const;
+
+	std::string getchannelmodes() const;
 
 	// --- Membership Methods ---
 	void addMember(IClient *client);
@@ -67,7 +73,7 @@ public:
 	bool isInvited(int fd) const;
 
 	// --- Mode Logic ---
-	void setTopic(const std::string &topic);
+	void setTopic(const std::string &topic, const std::string &setterNick);
 	void setInviteOnly(bool status);
 	bool isInviteOnly() const;
 

@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/06 01:22:04 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/03/29 13:58:33 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 /// --- Constructor & Destructor ---
 Channel::Channel(std::string name) : name(name),
 									 topic(""),
+									 topicsetter(""),
+									 topicsettime(""),
 									 inviteOnly(false),
 									 topicOpOnly(true),
 									 key(""),
@@ -33,7 +35,31 @@ Channel::~Channel() {}
 std::string Channel::getName() const { return name; }
 std::string Channel::getTopic() const { return topic; }
 std::string Channel::getCreationTime() const { return creationTime; }
+std::string Channel::getTopicSetter() const { return topicsetter; }
+std::string Channel::getTopicSetTime() const { return topicsettime; }
 size_t Channel::getMemberCount() const { return members.size(); }
+std::string Channel::getchannelmodes() const
+{
+	std::string modes = "+";
+	std::string param = "";
+	if (inviteOnly)
+		modes += "i";
+	if (topicOpOnly)
+		modes += "t";
+	if (!key.empty())
+	{
+		modes += "k";
+		param += " " + key;
+	}
+	if (userLimit > 0)
+	{
+		modes += "l";
+		std::stringstream ss;
+		ss << userLimit;
+		param += " " + ss.str();
+	}
+	return modes + param; // Example: "+itk secret 10"
+}
 
 // --- Membership Methods ---
 void Channel::addMember(IClient *client)
@@ -98,7 +124,17 @@ bool Channel::isInvited(int fd) const
 }
 
 // --- Mode Logic ---
-void Channel::setTopic(const std::string &newTopic) { topic = newTopic; }
+void Channel::setTopic(const std::string &newTopic, const std::string &setter)
+{
+	topic = newTopic;
+	topicsetter = setter;
+
+	// Update topic set time for RPL_TOPIC (332)
+	std::time_t now = std::time(0);
+	std::stringstream ss;
+	ss << now;
+	topicsettime = ss.str();
+}
 void Channel::setInviteOnly(bool status) { inviteOnly = status; }
 bool Channel::isInviteOnly() const { return inviteOnly; }
 

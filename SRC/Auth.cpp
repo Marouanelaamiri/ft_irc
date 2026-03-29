@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:09:14 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/06 01:55:22 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/03/29 13:48:13 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,38 +45,51 @@ void handlePass(IClient &client, const IRCmessage &msg, const std::string &serve
  * USER Logic
  * Purpose: Set the username and realname.
  */
-void handleUser(IClient &client, const IRCmessage &msg)
+/**
+ * USER Logic
+ * Purpose: Set the username and realname, and complete registration.
+ */
+void handleUser(IClient &client, const IRCmessage &msg, const std::string &creationTime)
 {
-	if (client.isRegistered())
-	{
-		client.pushToOutputBuffer("462 :ERR_ALREADYREGISTRED\r\n");
-		return;
-	}
+    if (client.isRegistered())
+    {
+        client.pushToOutputBuffer("462 :ERR_ALREADYREGISTRED\r\n");
+        return;
+    }
 
-	// Handshake rule: Client must have provided a password first [cite: 88]
-	if (!client.hasEnterdPassword())
-	{
-		client.pushToOutputBuffer("451 :ERR_NOTREGISTERED\r\n");
-		return;
-	}
+    if (!client.hasEnterdPassword())
+    {
+        client.pushToOutputBuffer("451 :ERR_NOTREGISTERED\r\n");
+        return;
+    }
 
-	// USER expects: <username> <hostname> <servername> <realname>
-	if (msg.params.size() < 4)
-	{
-		client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
-		return;
-	}
+    if (msg.params.size() < 4)
+    {
+        client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
+        return;
+    }
 
-	client.setUsername(msg.params[0]);
-	client.setRealname(msg.params[3]);
+    client.setUsername(msg.params[0]);
+    client.setRealname(msg.params[3]);
 
-	// Trap: If they already set a nickname, this USER command completes the handshake.
-	if (!client.getNickname().empty() && !client.isRegistered())
-	{
-		client.setRegistered(true);
-		client.pushToOutputBuffer("001 " + client.getNickname() + " :Welcome to the IRC Network " + client.getNickname() + "\r\n");
-	}
-	// the USER command syntax: USER <user> <mode> <unused> <realname>.
+    // Trap: Complete the handshake
+    if (!client.getNickname().empty() && !client.isRegistered())
+    {
+        client.setRegistered(true);
+        std::string nick = client.getNickname();
+        
+        // 001: Welcome
+        client.pushToOutputBuffer("001 " + nick + " :Welcome to the IRC Network " + nick + "\r\n");
+        
+        // 002: Your Host
+        client.pushToOutputBuffer("002 " + nick + " :Your host is ft_irc, running version 1.0\r\n");
+        
+        // 003: Created
+        client.pushToOutputBuffer("003 " + nick + " :This server was created " + creationTime + "\r\n");
+        
+        // 004: My Info (ServerName, Version, UserModes, ChannelModes)
+        client.pushToOutputBuffer("004 " + nick + " ft_irc 1.0 o itkol\r\n");
+    }
 }
 /**
  * NICK Logic
