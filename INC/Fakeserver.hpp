@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/29 13:48:34 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/03 21:06:03 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,17 @@
 #include <map>
 #include <string>
 #include <poll.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
 #include "Parser.hpp"
 #include "IClient.hpp"
+
+class Channel;
 
 class Client : public IClient
 {
@@ -30,6 +39,7 @@ private:
 	std::string _realname;
 	bool _registered;
 	bool _enteredPassword;
+	std::map<std::string, Channel *> channels;
 
 public:
 	std::string inBuffer;  // Stores raw data from recv()
@@ -64,8 +74,15 @@ public:
 
 // Forward declarations for your Auth logic
 void handlePass(IClient &client, const IRCmessage &msg, const std::string &serverPassword);
-void handleUser(IClient &client, const IRCmessage &msg , const std::string &creationtime);
+void handleUser(IClient &client, const IRCmessage &msg, const std::string &creationtime);
 void handleNick(IClient &client, const IRCmessage &msg, const std::vector<IClient *> &allClients);
+
+void handleJoin(IClient &client, const IRCmessage &msg);
+void handlePrivmsg(IClient &client, const IRCmessage &msg);
+void handleMode(IClient &client, const IRCmessage &msg);
+void handleKick(IClient &client, const IRCmessage &msg);
+void handleTopic(IClient &client, const IRCmessage &msg);
+void handleInvite(IClient &client, const IRCmessage &msg);
 
 class Server
 {

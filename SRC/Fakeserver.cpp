@@ -6,19 +6,11 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/29 13:47:45 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/03 21:06:11 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Fakeserver.hpp"
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
 
 bool Server::_signal = false;
 

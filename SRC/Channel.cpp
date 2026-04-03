@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/29 13:58:33 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/03 20:51:41 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ std::string Channel::getCreationTime() const { return creationTime; }
 std::string Channel::getTopicSetter() const { return topicsetter; }
 std::string Channel::getTopicSetTime() const { return topicsettime; }
 size_t Channel::getMemberCount() const { return members.size(); }
+std::map<int, IClient *> Channel::getMembers() const { return members; }
 std::string Channel::getchannelmodes() const
 {
 	std::string modes = "+";
