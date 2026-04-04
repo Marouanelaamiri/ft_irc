@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 01:41:27 by malaamir          #+#    #+#             */
-/*   Updated: 2026/02/24 02:46:45 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 17:04:49 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ IRCmessage Parser::parse(std::string raw)
 	IRCmessage msg;
 
 	// 1. Remove (\r\n) from the end of the message
-	size_t end = raw.find_last_not_of("\r\n");
+	size_t end = raw.find_last_not_of(" \r\n\t");
 
 	// If the message is not empty after trimming, keep it; otherwise, return an empty IRCmessage
 	if (end != std::string::npos)

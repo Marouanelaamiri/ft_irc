@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 12:52:13 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 17:17:16 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,14 +209,14 @@ void Server::processMessages(Client *client)
 		// {
 		// 	this->handleTopic(*client, msg);
 		// }
-		// else if (msg.command == "KICK")
-		// {
-		// 	this->handleKick(*client, msg);
-		// }
-		// else if (msg.command == "INVITE")
-		// {
-		// 	this->handleInvite(*client, msg);
-		// }
+		else if (msg.command == "KICK")
+		{
+			this->handleKick(*client, msg);
+		}
+		else if (msg.command == "INVITE")
+		{
+			this->handleInvite(*client, msg);
+		}
 		else if (msg.command == "MODE")
 		{
 			this->handleMode(*client, msg);
