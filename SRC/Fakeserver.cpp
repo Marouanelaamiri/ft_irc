@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 21:06:11 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 12:14:06 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,11 +183,11 @@ void Server::processMessages(Client *client)
 		// Your existing routing logic
 		if (msg.command == "PASS")
 		{
-			handlePass(*client, msg, _password);
+			this->handlePass(*client, msg);
 		}
 		else if (msg.command == "USER")
 		{
-			handleUser(*client, msg, this->_creationtime);
+			this->handleUser(*client, msg);
 		}
 		else if (msg.command == "NICK")
 		{
@@ -195,8 +195,32 @@ void Server::processMessages(Client *client)
 			std::map<int, Client *>::iterator it;
 			for (it = _clients.begin(); it != _clients.end(); ++it)
 				allClients.push_back(it->second);
-			handleNick(*client, msg, allClients);
+			this->handleNick(*client, msg);
 		}
+		// else if (msg.command == "JOIN")
+		// {
+		// 	this->handleJoin(*client, msg);
+		// }
+		// else if (msg.command == "PRIVMSG")
+		// {
+		// 	this->handlePrivmsg(*client, msg);
+		// }
+		// else if (msg.command == "TOPIC")
+		// {
+		// 	this->handleTopic(*client, msg);
+		// }
+		// else if (msg.command == "KICK")
+		// {
+		// 	this->handleKick(*client, msg);
+		// }
+		// else if (msg.command == "INVITE")
+		// {
+		// 	this->handleInvite(*client, msg);
+		// }
+		// else if (msg.command == "MODE")
+		// {
+		// 	this->handleMode(*client, msg);
+		// }
 
 		// --- THE CRASH PREVENTER ---
 		// Check if the client still exists in our map.

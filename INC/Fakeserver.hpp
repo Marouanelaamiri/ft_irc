@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 21:06:03 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 12:09:58 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ private:
 	std::string _realname;
 	bool _registered;
 	bool _enteredPassword;
-	std::map<std::string, Channel *> channels;
 
 public:
 	std::string inBuffer;  // Stores raw data from recv()
@@ -73,16 +72,6 @@ public:
 };
 
 // Forward declarations for your Auth logic
-void handlePass(IClient &client, const IRCmessage &msg, const std::string &serverPassword);
-void handleUser(IClient &client, const IRCmessage &msg, const std::string &creationtime);
-void handleNick(IClient &client, const IRCmessage &msg, const std::vector<IClient *> &allClients);
-
-void handleJoin(IClient &client, const IRCmessage &msg);
-void handlePrivmsg(IClient &client, const IRCmessage &msg);
-void handleMode(IClient &client, const IRCmessage &msg);
-void handleKick(IClient &client, const IRCmessage &msg);
-void handleTopic(IClient &client, const IRCmessage &msg);
-void handleInvite(IClient &client, const IRCmessage &msg);
 
 class Server
 {
@@ -91,6 +80,7 @@ private:
 	std::string _password;
 	std::vector<struct pollfd> _fds;
 	std::map<int, Client *> _clients;
+	std::map<std::string, Channel *> channels;
 	static bool _signal;
 	std::string _creationtime;
 
@@ -99,6 +89,17 @@ private:
 	void sendData(int fd);
 	void processMessages(Client *client);
 	void disconnectClient(int fd);
+
+	void handlePass(IClient &client, const IRCmessage &msg);
+	void handleUser(IClient &client, const IRCmessage &msg);
+	void handleNick(IClient &client, const IRCmessage &msg);
+
+	void handleJoin(IClient &client, const IRCmessage &msg);
+	void handlePrivmsg(IClient &client, const IRCmessage &msg);
+	void handleMode(IClient &client, const IRCmessage &msg);
+	void handleKick(IClient &client, const IRCmessage &msg);
+	void handleTopic(IClient &client, const IRCmessage &msg);
+	void handleInvite(IClient &client, const IRCmessage &msg);
 
 public:
 	Server();
