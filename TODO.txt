@@ -40,7 +40,7 @@ how to run it
 nc -C localhost 6969
 PASS w
 NICK tester
-USER usertester 0 * :tester Realname
+USER usertester 0 * :[tester_Realname]
 
 Test Commands
 join #room

@@ -77,12 +77,12 @@ void handlePass(IClient &client, const IRCmessage &msg, const std::string &serve
 void handleUser(IClient &client, const IRCmessage &msg, const std::string &creationtime);
 void handleNick(IClient &client, const IRCmessage &msg, const std::vector<IClient *> &allClients);
 
-void handleJoin(IClient &client, const IRCmessage &msg);
-void handlePrivmsg(IClient &client, const IRCmessage &msg);
-void handleMode(IClient &client, const IRCmessage &msg);
-void handleKick(IClient &client, const IRCmessage &msg);
-void handleTopic(IClient &client, const IRCmessage &msg);
-void handleInvite(IClient &client, const IRCmessage &msg);
+	void handleJoin(IClient &client, const IRCmessage &msg);
+	void handlePrivmsg(IClient &client, const IRCmessage &msg);
+	void handleMode(IClient &client, const IRCmessage &msg);
+	void handleKick(IClient &client, const IRCmessage &msg);
+	void handleTopic(IClient &client, const IRCmessage &msg);
+	void handleInvite(IClient &client, const IRCmessage &msg);
 
 class Server
 {
