@@ -7,7 +7,7 @@ CMD_DIR = CMD
 SRC = $(SRC_DIR)/Auth.cpp \
       $(SRC_DIR)/Channel.cpp \
       $(SRC_DIR)/Parser.cpp \
-	  $(SRC_DIR)/Fakeserver.cpp \
+      $(SRC_DIR)/Server.cpp \
       $(CMD_DIR)/INVITE.cpp \
       $(CMD_DIR)/JOIN.cpp \
       $(CMD_DIR)/KICK.cpp \
@@ -20,7 +20,7 @@ SRC = $(SRC_DIR)/Auth.cpp \
 HEADERS = $(INC_DIR)/Channel.hpp \
           $(INC_DIR)/IClient.hpp \
           $(INC_DIR)/Parser.hpp \
-          $(INC_DIR)/Fakeserver.hpp
+          $(INC_DIR)/Server.hpp
 
 OBJ = $(SRC:.cpp=.o)
 
@@ -41,4 +41,4 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 
-re: all clean 
+re: clean all

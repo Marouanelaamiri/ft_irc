@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Channel.hpp"
-#include "Fakeserver.hpp"
+#include "Server.hpp"
 
 // void handleJoin(IClient &client, const IRCmessage &msg, Server &server)
 // {
