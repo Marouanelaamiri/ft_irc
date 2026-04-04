@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 20:59:06 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 16:16:48 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 18:00:34 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void Server::handleJoin(IClient &client, const IRCmessage &msg)
 		}
 		// Phase 4: Broadcast join message
 		// the brodcast uses -1 as the excludeFd because the JOIN message should be sent to everyone in the channel, including the joiner.
-		std::string joinMsg = ":" + client.getNickname() + "!~" + client.getUsername() + "@localhost JOIN :" + channelName;
+		std::string joinMsg = ":" + client.getNickname() + "!~" + client.getUsername() + "@localhost JOIN :" + channelName + "\r\n";
 		channel->broadcast(joinMsg, -1);
 
 		// Phase 5: welcome messages
@@ -92,7 +92,10 @@ void Server::handleJoin(IClient &client, const IRCmessage &msg)
 		if (channel->getTopic().empty())
 			client.pushToOutputBuffer("331 " + client.getNickname() + " " + channelName + " :No topic is set\r\n");
 		else
+		{
 			client.pushToOutputBuffer("332 " + client.getNickname() + " " + channelName + " :" + channel->getTopic() + "\r\n");
+			client.pushToOutputBuffer("333 " + client.getNickname() + " " + channelName + " " + channel->getTopicSetter() + " " + channel->getTopicSetTime() + "\r\n");
+		}
 
 		// RPL_NAMREPLY (353) and RPL_ENDOFNAMES (366)
 		std::string namesList = "";
