@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 12:14:06 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 12:52:13 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,10 +197,10 @@ void Server::processMessages(Client *client)
 				allClients.push_back(it->second);
 			this->handleNick(*client, msg);
 		}
-		// else if (msg.command == "JOIN")
-		// {
-		// 	this->handleJoin(*client, msg);
-		// }
+		else if (msg.command == "JOIN")
+		{
+			this->handleJoin(*client, msg);
+		}
 		// else if (msg.command == "PRIVMSG")
 		// {
 		// 	this->handlePrivmsg(*client, msg);
@@ -217,10 +217,10 @@ void Server::processMessages(Client *client)
 		// {
 		// 	this->handleInvite(*client, msg);
 		// }
-		// else if (msg.command == "MODE")
-		// {
-		// 	this->handleMode(*client, msg);
-		// }
+		else if (msg.command == "MODE")
+		{
+			this->handleMode(*client, msg);
+		}
 
 		// --- THE CRASH PREVENTER ---
 		// Check if the client still exists in our map.
