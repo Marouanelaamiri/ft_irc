@@ -5,33 +5,11 @@ TODO
 
 PRIVMSG: Used to send private messages to a specific user or an entire channel.
 
-
-JOIN: Allows a user to enter a specific channel. If the channel does not exist, the logic should create it and make the user the first operator.
-
 KICK: Forcefully eject a client from a channel.
-
 
 INVITE: Invite a specific client to a channel.
 
-
 TOPIC: View or change the channel's topic.
-
-MODE: This is your most complex logic task. You must implement the following 5 flags:
-
-
-	i: Set or remove Invite-only status.
-
-
-	t: Restrict the TOPIC command to operators only.
-
-
-	k: Set or remove the Channel Key (password).
-
-
-	o: Give or take away Channel Operator privileges.
-
-
-	l: Set or remove the User Limit for the channel.
 
 
 how to run it 
@@ -41,9 +19,3 @@ nc -C localhost 6969
 PASS w
 NICK tester
 USER usertester 0 * :tester Realname
-
-Test Commands
-join #room
-privmsg user : hello!
-topic #room : this is topic test
-...

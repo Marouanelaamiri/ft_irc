@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:11 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 20:51:14 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/04 15:58:57 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ public:
 	std::string getTopicSetter() const;
 	std::string getTopicSetTime() const;
 	std::string getchannelmodes() const;
-	std::map<int, IClient *> getMembers() const;
+	const std::map<int, IClient *> &getMembers() const;
 
 	// --- Membership Methods ---
 	void addMember(IClient *client);
