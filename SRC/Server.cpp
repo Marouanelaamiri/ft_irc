@@ -56,9 +56,9 @@ void Server::init(int port, std::string password)
     if (_serverFd < 0)
         throw std::runtime_error("Failed to create socket");
     // 2. Allow port reuse
-    // int opt = 1;
-    // if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-    // 	throw std::runtime_error("setsockopt failed");
+    int opt = 1;
+    if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        throw std::runtime_error("setsockopt failed");
 
     // // 3. Make socket non-blocking (42 Subject Requirement)
     if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) < 0)
@@ -74,74 +74,74 @@ void Server::init(int port, std::string password)
     if (bind(_serverFd, (struct sockaddr *)&address, sizeof(address)) < 0)
         throw std::runtime_error(std::string("Bind failed: ") + strerror(errno));
 
-    // 5. Listen for connections with a backlog of 10 (standard default) 
+    // 5. Listen for connections with a backlog of 10 (standard default)
     if (listen(_serverFd, 10) < 0)
         throw std::runtime_error("Listen failed");
 
     // Add server socket to poll structure to monitor for incoming connections
     struct pollfd srv_poll;
     srv_poll.fd = _serverFd;
-    srv_poll.events = POLLIN;
+    srv_poll.events = POLLIN; // tell
     srv_poll.revents = 0;
     _fds.push_back(srv_poll);
 
     std::cout << "Server <" << _serverFd << "> Connected on port " << port << std::endl;
     std::cout << "Waiting to accept a connection..." << std::endl;
 
-    // // 6. The Main Engine Loop
     while (!_signal)
     {
-    	if (poll(&_fds[0], _fds.size(), -1) < 0 && !_signal)
-    		throw std::runtime_error("Poll failed");
+        if (poll(&_fds[0], _fds.size(), -1) < 0 && !_signal)    
+            throw std::runtime_error("Poll failed");
 
-    	for (size_t i = 0; i < _fds.size(); ++i)
-    	{
-    // 		if (_fds[i].revents == 0)
-    // 			continue;
+        for (size_t i = 0; i < _fds.size(); ++i)
+        {
+            if (_fds[i].revents == 0)
+            	continue;
 
-    // 		// Handle incoming data
-    // 		if (_fds[i].revents & POLLIN)
-    // 		{
-    // 			if (_fds[i].fd == _serverFd)
-    // 				acceptNewClient();
-    // 			else
-    // 				receiveData(_fds[i].fd);
-    // 		}
-    // 		// Handle outgoing data
-    // 		if (_fds[i].revents & POLLOUT)
-    // 		{
-    // 			sendData(_fds[i].fd);
-    // 		}
-    // 		// Handle disconnections
-    // 		if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
-    // 		{
-    // 			disconnectClient(_fds[i].fd);
-    // 		}
-    	}
+            // Handle incoming data
+            if (_fds[i].revents & POLLIN)
+            {
+            	if (_fds[i].fd == _serverFd)
+            		acceptNewClient();
+            	// else
+            	// 	receiveData(_fds[i].fd);
+            }
+            // // Handle outgoing data
+            // if (_fds[i].revents & POLLOUT)
+            // {
+            // 	sendData(_fds[i].fd);
+            // }
+            // // Handle disconnections
+            // if (ds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+            // {
+            // 	disconnectClient(_fds[i].fd);
+            // }
+        }
     }
 }
 
-// void Server::acceptNewClient()
-// {
-// 	struct sockaddr_in clientAddr;
-// 	socklen_t clientLen = sizeof(clientAddr);
-// 	int clientFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientLen);
+void Server::acceptNewClient()
+{
+	struct sockaddr_in clientAddr;
+	socklen_t clientLen = sizeof(clientAddr);
+	int clientFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientLen);
 
-// 	if (clientFd < 0)
-// 		return;
-// 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
-// 		return;
+	if (clientFd < 0)
+		return;
+	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
+		return;
 
-// 	struct pollfd client_poll;
-// 	client_poll.fd = clientFd;
-// 	client_poll.events = POLLIN | POLLOUT;
-// 	client_poll.revents = 0;
+	struct pollfd client_poll;
+	client_poll.fd = clientFd;
+	client_poll.events = POLLIN | POLLOUT;
+	client_poll.revents = 0;
 
-// 	_fds.push_back(client_poll);
-// 	_clients[clientFd] = new Client(clientFd);
+	_fds.push_back(client_poll);
+	_clients[clientFd] = new Client(clientFd);
 
-// 	std::cout << "Client <" << clientFd << "> Connected" << std::endl;
-// }
+	std::cout << "Client <" << clientFd << "> Connected" << std::endl;
+    close(clientFd); 
+}
 
 // void Server::receiveData(int fd)
 // {

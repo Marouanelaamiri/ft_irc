@@ -35,20 +35,20 @@ class Channel;
 class Client : public IClient
 {
 private:
-	// int _fd;
-	// std::string _nickname;
-	// std::string _username;
-	// std::string _realname;
-	// bool _registered;
-	// bool _enteredPassword;
-	// std::map<std::string, Channel *> channels;
+	int _fd;
+	std::string _nickname;
+	std::string _username;
+	std::string _realname;
+	bool _registered;
+	bool _enteredPassword;
+	std::map<std::string, Channel *> channels;
 
 public:
 	// std::string inBuffer;  // Stores raw data from recv()
 	// std::string outBuffer; // Stores data waiting for send()
 
-	// Client(int fd) : _fd(fd), _registered(false), _enteredPassword(false) {}
-	// ~Client() {}
+	Client(int fd) : _fd(fd), _registered(false), _enteredPassword(false) {}
+	~Client() {}
 
 	// int getFd() const { return _fd; }
 
@@ -95,7 +95,7 @@ private:
 	static bool _signal;
 	std::string _creationtime;
 
-	// void acceptNewClient();
+	void acceptNewClient();
 	// void receiveData(int fd);
 	// void sendData(int fd);
 	// void processMessages(Client *client);
