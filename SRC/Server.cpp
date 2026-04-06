@@ -103,8 +103,8 @@ void Server::init(int port, std::string password)
             {
             	if (_fds[i].fd == _serverFd)
             		acceptNewClient();
-            	// else
-            	// 	receiveData(_fds[i].fd);
+            	else
+            		receiveData(_fds[i].fd);
             }
             // // Handle outgoing data
             // if (_fds[i].revents & POLLOUT)
@@ -150,30 +150,27 @@ void Server::receiveData(int fd)
     int bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
     if (bytes <= 0)
     {
-        std::cout << "Client <" << fd << "> Disconnected :" << strerror(errno) << std::endl;
+		std::cout << "Client <" << fd << "> Disconnected" << std::endl;
         disconnectClient(fd);
         return;
     }
 
 	_clients[fd]->inBuffer += buffer;
-    std::cout << "[FD " << fd << " -> SERVER] Full Received: " << _clients[fd]->inBuffer << std::endl;
 	// // Process full commands ending in \r\n
-	// processMessages(_clients[fd]);
+	processMessages(_clients[fd]);
 }
 void Server::processMessages(Client *client)
 {
-    (void)client; // To avoid unused parameter warning until we implement this method
-	// size_t pos;
-	// // Store the FD now because if the client is deleted,
-	// // we can't call client->getFd() anymore.
-	// int safeFd = client->getFd();
+	size_t pos;
+	std::string raw_msg;
 
-	// while ((pos = client->inBuffer.find("\r\n")) != std::string::npos)
-	// {
-	// 	std::string raw_msg = client->inBuffer.substr(0, pos);
-	// 	client->inBuffer.erase(0, pos + 2);
+	int safeFd = client->getFd();
+	while ((pos = client->inBuffer.find("\r\n")) != std::string::npos)
+	{
+		raw_msg = client->inBuffer.substr(0, pos);
+		client->inBuffer.erase(0, pos + 2);
 
-	// 	std::cout << "[FD " << safeFd << " -> SERVER] " << raw_msg << std::endl;
+		std::cout << "[FD " << safeFd << " -> SERVER] " << raw_msg << std::endl;
 
 	// 	Parser parser;
 	// 	IRCmessage msg = parser.parse(raw_msg);
@@ -199,12 +196,12 @@ void Server::processMessages(Client *client)
 	// 	// --- THE CRASH PREVENTER ---
 	// 	// Check if the client still exists in our map.
 	// 	// If they were disconnected by a command, we MUST stop the loop.
-	// 	if (_clients.find(safeFd) == _clients.end())
-	// 	{
-	// 		std::cout << "Client on FD " << safeFd << " was removed. Stopping loop." << std::endl;
-	// 		return;
-	// 	}
-	// }
+		if (_clients.find(safeFd) == _clients.end())
+		{
+			std::cout << "Client on FD " << safeFd << " was removed. Stopping loop." << std::endl;
+			return;
+		}
+	}
 }
 
 // void Server::sendData(int fd)
@@ -223,7 +220,6 @@ void Server::processMessages(Client *client)
 
 void Server::disconnectClient(int fd)
 {
-	std::cout << "Client <" << fd << "> Disconnected" << std::endl;
 	close(fd);
 	delete _clients[fd];
 	_clients.erase(fd);
