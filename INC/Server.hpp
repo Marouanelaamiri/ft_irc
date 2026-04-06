@@ -30,6 +30,8 @@
 #include "Parser.hpp"
 #include "IClient.hpp"
 
+#define BUFFER_SIZE 1024
+
 class Channel;
 
 class Client : public IClient
@@ -41,37 +43,37 @@ private:
 	std::string _realname;
 	bool _registered;
 	bool _enteredPassword;
-	std::map<std::string, Channel *> channels;
+	// std::map<std::string, Channel *> channels;
 
 public:
-	// std::string inBuffer;  // Stores raw data from recv()
-	// std::string outBuffer; // Stores data waiting for send()
+	std::string inBuffer;
+	std::string outBuffer;
 
 	Client(int fd) : _fd(fd), _registered(false), _enteredPassword(false) {}
 	~Client() {}
 
-	// int getFd() const { return _fd; }
+	int getFd() const { return _fd; }
 
-	// std::string getNickname() const { return _nickname; }
-	// void setNickname(const std::string &nick) { _nickname = nick; }
+	std::string getNickname() const { return _nickname; }
+	void setNickname(const std::string &nick) { _nickname = nick; }
 
-	// std::string getUsername() const { return _username; }
-	// void setUsername(const std::string &user) { _username = user; }
+	std::string getUsername() const { return _username; }
+	void setUsername(const std::string &user) { _username = user; }
 
-	// std::string getRealname() const { return _realname; }
-	// void setRealname(const std::string &real) { _realname = real; }
+	std::string getRealname() const { return _realname; }
+	void setRealname(const std::string &real) { _realname = real; }
 
-	// bool isRegistered() const { return _registered; }
-	// void setRegistered(bool state) { _registered = state; }
+	bool isRegistered() const { return _registered; }
+	void setRegistered(bool state) { _registered = state; }
 
-	// bool hasEnterdPassword() const { return _enteredPassword; }
-	// void setEnterdPassword(bool state) { _enteredPassword = state; }
+	bool hasEnterdPassword() const { return _enteredPassword; }
+	void setEnterdPassword(bool state) { _enteredPassword = state; }
 
-	// // Appends your command outputs to the network queue
-	// void pushToOutputBuffer(const std::string &msg)
-	// {
-	// 	outBuffer += msg;
-	// }
+	// Appends your command outputs to the network queue
+	void pushToOutputBuffer(const std::string &msg)
+	{
+		outBuffer += msg;
+	}
 };
 
 // Forward declarations for your Auth logic
@@ -91,15 +93,15 @@ private:
 	int _serverFd;
 	std::string _password;
 	std::vector<struct pollfd> _fds;
-	// std::map<int, Client *> _clients;
+	std::map<int, Client *> _clients; // clients mapped by fd
 	static bool _signal;
 	std::string _creationtime;
 
 	void acceptNewClient();
-	// void receiveData(int fd);
+	void receiveData(int fd);
+	void disconnectClient(int fd);
+	void processMessages(Client *client);
 	// void sendData(int fd);
-	// void processMessages(Client *client);
-	// void disconnectClient(int fd);
 
 public:
 	Server();

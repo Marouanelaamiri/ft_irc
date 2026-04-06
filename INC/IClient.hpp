@@ -19,11 +19,10 @@
 class IClient
 {
 public:
-	virtual ~IClient() {} // mandatory to prevent memory leaks
+	virtual ~IClient() {};
 
 	// identification
-	virtual int getFd() const = 0; // return the unique user id using map
-	// used for NICK command and for when building a brodcast message.
+	virtual int getFd() const = 0;
 	virtual std::string getNickname() const = 0;
 	virtual void setNickname(const std::string &nick) = 0;
 	// Used for the USER command. The username is the identity (used for bans or hostmasks)
