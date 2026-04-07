@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 15:57:58 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/07 11:06:34 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Channel::Channel(std::string name) : name(name),
 									 topicsetter(""),
 									 topicsettime(""),
 									 inviteOnly(false),
-									 topicOpOnly(true),
+									 topicOpOnly(false),
 									 key(""),
 									 userLimit(0)
 {

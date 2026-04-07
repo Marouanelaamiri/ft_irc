@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 17:17:16 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/07 11:13:26 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,14 +201,14 @@ void Server::processMessages(Client *client)
 		{
 			this->handleJoin(*client, msg);
 		}
-		// else if (msg.command == "PRIVMSG")
-		// {
-		// 	this->handlePrivmsg(*client, msg);
-		// }
-		// else if (msg.command == "TOPIC")
-		// {
-		// 	this->handleTopic(*client, msg);
-		// }
+		else if (msg.command == "PRIVMSG")
+		{
+			this->handlePrivmsg(*client, msg);
+		}
+		else if (msg.command == "TOPIC")
+		{
+			this->handleTopic(*client, msg);
+		}
 		else if (msg.command == "KICK")
 		{
 			this->handleKick(*client, msg);

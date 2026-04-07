@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 12:09:58 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/07 10:49:55 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,12 @@ public:
 	bool hasEnterdPassword() const { return _enteredPassword; }
 	void setEnterdPassword(bool state) { _enteredPassword = state; }
 
-	// Appends your command outputs to the network queue
+	// Appends command outputs to the network queue
 	void pushToOutputBuffer(const std::string &msg)
 	{
 		outBuffer += msg;
 	}
 };
-
-// Forward declarations for your Auth logic
 
 class Server
 {
