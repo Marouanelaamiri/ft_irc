@@ -8,6 +8,7 @@ SRC = $(SRC_DIR)/Auth.cpp \
       $(SRC_DIR)/Channel.cpp \
       $(SRC_DIR)/Parser.cpp \
       $(SRC_DIR)/Server.cpp \
+      $(SRC_DIR)/Client.cpp \
       $(CMD_DIR)/INVITE.cpp \
       $(CMD_DIR)/JOIN.cpp \
       $(CMD_DIR)/KICK.cpp \
@@ -19,6 +20,7 @@ SRC = $(SRC_DIR)/Auth.cpp \
 
 HEADERS = $(INC_DIR)/Channel.hpp \
           $(INC_DIR)/IClient.hpp \
+          $(INC_DIR)/Client.hpp \
           $(INC_DIR)/Parser.hpp \
           $(INC_DIR)/Server.hpp
 

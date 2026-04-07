@@ -1,16 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Fakeserver.cpp                                     :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 21:06:11 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/07 17:01:41 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Client.hpp"
 
 bool Server::_signal = false;
 
@@ -139,7 +140,7 @@ void Server::acceptNewClient()
 	_fds.push_back(client_poll);
 	_clients[clientFd] = new Client(clientFd);
 
-	std::cout << "Client <" << clientFd << "> Connected" << std::endl;
+	std::cout << "Client <" << _clients[clientFd]->getFd() << "> Connected" << std::endl;
 }
 
 void Server::receiveData(int fd)
@@ -156,34 +157,27 @@ void Server::receiveData(int fd)
     }
 
 	_clients[fd]->inBuffer += buffer;
-	// // Process full commands ending in \r\n
 	processMessages(_clients[fd]);
 }
+
 void Server::processMessages(Client *client)
 {
 	size_t pos;
 	std::string raw_msg;
-
-	int safeFd = client->getFd();
+	Parser parser;
+	
+	// int safeFd = client->getFd();
 	while ((pos = client->inBuffer.find("\r\n")) != std::string::npos)
 	{
-		raw_msg = client->inBuffer.substr(0, pos);
+		std::string raw_msg = client->inBuffer.substr(0, pos);
 		client->inBuffer.erase(0, pos + 2);
 
-		std::cout << "[FD " << safeFd << " -> SERVER] " << raw_msg << std::endl;
+		IRCmessage msg = parser.parse(raw_msg);
 
-	// 	Parser parser;
-	// 	IRCmessage msg = parser.parse(raw_msg);
-
-	// 	// Your existing routing logic
-	// 	if (msg.command == "PASS")
-	// 	{
-	// 		handlePass(*client, msg, _password);
-	// 	}
-	// 	else if (msg.command == "USER")
-	// 	{
-	// 		handleUser(*client, msg, this->_creationtime);
-	// 	}
+		if (msg.command == "PASS")
+			this->handlePass(*client, msg);
+		else if (msg.command == "USER")
+			this->handleUser(IClient &client, const IRCmessage &msg);
 	// 	else if (msg.command == "NICK")
 	// 	{
 	// 		std::vector<IClient *> allClients;
@@ -196,11 +190,11 @@ void Server::processMessages(Client *client)
 	// 	// --- THE CRASH PREVENTER ---
 	// 	// Check if the client still exists in our map.
 	// 	// If they were disconnected by a command, we MUST stop the loop.
-		if (_clients.find(safeFd) == _clients.end())
-		{
-			std::cout << "Client on FD " << safeFd << " was removed. Stopping loop." << std::endl;
-			return;
-		}
+		// if (_clients.find(safeFd) == _clients.end())
+		// {
+		// 	std::cout << "Client on FD " << safeFd << " was removed. Stopping loop." << std::endl;
+		// 	return;
+		// }
 	}
 }
 

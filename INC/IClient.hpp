@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   IClient.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 01:31:26 by malaamir          #+#    #+#             */
-/*   Updated: 2026/03/02 01:55:26 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/07 15:51:55 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ public:
 	// The IRC protocol requires a specific order. If your server requires a password, the client must send PASS first.
 	// When they send the correct password, you call client->setEnterdPassword(true).
 	// If they try to send NICK while hasEnterdPassword() is false, you reject them.
-	virtual bool hasEnterdPassword() const = 0;
-	virtual void setEnterdPassword(bool state) = 0;
+	virtual bool hasEnteredPassword() const = 0;
+	virtual void setEnteredPassword(bool state) = 0;
 
 	// comuniaction
 	// i call this to send a message to the client, sahbi badr radi handli logic dial buffering and calling send()

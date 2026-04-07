@@ -47,3 +47,10 @@ join #room
 privmsg user : hello!
 topic #room : this is topic test
 ...
+
+
+
+
+ask
+- if the password is wrong are you send to me the params empty or what?
+- 
