@@ -6,7 +6,7 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/07 17:01:49 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/09 18:47:51 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,13 @@
 
 #include "Parser.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 
 #define BUFFER_SIZE 1024
 
 class IClient;
 class Client;
+class channel;
 
 class 	Server
 {
@@ -43,13 +45,25 @@ private:
 	std::vector<struct pollfd> _fds;
 	std::map<int, Client *> _clients; // clients mapped by fd
 	static bool _signal;
+	std::map<std::string, Channel *> channels;
 	std::string _creationtime;
 
 	void acceptNewClient();
 	void receiveData(int fd);
 	void disconnectClient(int fd);
 	void processMessages(Client *client);
-	// void sendData(int fd);
+	void sendData(int fd);
+
+	void handlePass(IClient &client, const IRCmessage &msg);
+	void handleNick(IClient &client, const IRCmessage &msg);
+	void handleUser(IClient &client, const IRCmessage &msg);
+
+	void handleInvite(IClient &client, const IRCmessage &msg);
+	void handleJoin(IClient &client, const IRCmessage &msg);
+	void handleKick(IClient &client, const IRCmessage &msg);
+	void handleMode(IClient &client, const IRCmessage &msg);
+	void handlePrivmsg(IClient &client, const IRCmessage &msg);
+	void handleTopic(IClient &client, const IRCmessage &msg);
 
 public:
 	Server();
@@ -59,8 +73,9 @@ public:
 	void close_fds();
 	static void SignalHandler(int signum);
 
-	void handlePass(IClient &client, const IRCmessage &msg);
-	void handleUser(IClient &client, const IRCmessage &msg);
+
+	
+
 };
 
 #endif

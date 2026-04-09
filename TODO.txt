@@ -39,7 +39,7 @@ how to run it
 ./ircserv 6969 w
 nc -C localhost 6969
 PASS w
-NICK tester
+NICK tester	
 USER usertester 0 * :[tester_Realname]
 
 Test Commands
@@ -54,3 +54,80 @@ topic #room : this is topic test
 ask
 - if the password is wrong are you send to me the params empty or what?
 - 
+
+the nc (netcat) is a simple utility that can be used to connect to a server and send data to it.
+is a communication tool that used the TCP or UDP protocol to send and receive data over the network. 
+WHAT IS DO:
+	- it can be used to connect to a server and send data to it.
+	- it can be used to listen for incoming connections on a specific port.
+	- it can be used to create a simple chat server or client.
+	- it can be used to test the connectivity of a server or a network.
+	- it can be used to transfer files between two machines.
+IN OUR CASE:
+	- we use it to connect to our server and send data to it.
+	-> thats happend by the command nc -C localhost 1024
+	+ nc is the command to run netcat to do:
+	   - use TCP protocol (default).
+	   - do the 3 handshake (SYN, SYN-ACK, ACK) to establish a connection between the client and the server.
+	   - connect to the server running on localhost (127.0.0.1)
+	   - connect to the server on port 1024.
+	+ -C
+	   - is used to add the \r\n at the end of each line you send to the server(waiting the message form the cleint).
+	+ localhost
+	   - is the hostname of the server you want to connect to.
+	   because when we create the server by the port 1024 on our machine (localhost)
+	   	 -> we can connect to it by the hostname (localhost) on \nc\ or by the IP address(127.0.0.1) on the browser.
+	+ 1024
+	   - is the port number of the server you want to connect to.
+
+
+buffring:
+the IRC is not send the message by assci but is send them by byte so if message send it cann look like this:
+PASS w\r\n
+NICK tester\r\n
+USER usertester 0 * :[tester_Realname]\r\n
+thats is fine but if the message is big it can be send in two or more parts like this:
+PASS w\r\nNICK tes
+and then you get the job of buffring you create a string inbuffer to send the data received 
+and you append the data received to this string 
+then you check if the string contain \r\n then proccess the message to this parts 
+PASS w\r\n
+NICK tes\r\n
+USER usertester 0 * :[tester_Realname]\r\n
+the pass is containe the password of the server 
+the nick is the nickname of the client
+the user is the username of the client
+the realname is the real name of the client
+the 0 is the mode of the client
+the * is the host of the client
+the : is the separator between the params and the trailing
+the \r\n is the end of the message
+
+the part of the PASS pass is the connection between the server and the client this is the way
+the client can authenticate itself to the server and the server can verify that the client is 
+authorized to connect to the server
+
+when the nick is send the server should check if the nickname is already used by another client.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+• The server must be capable of handling multiple clients simultaneously without
+hanging.
+• Forking is prohibited. All I/O operations must be non-blocking.
+
+• Several IRC clients exist. You have to choose one of them as a reference. Your
+reference client will be used during the evaluation process.

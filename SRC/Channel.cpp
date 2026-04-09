@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 20:51:41 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/09 18:48:55 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ void Channel::addMember(IClient *client)
 		members[client->getFd()] = client;
 }
 // The [] operator is the primary way to interact with a std::map.
-// If client->getFd() (for example, 5) does not exist in the tree, 
-//the map allocates memory, creates a new node with key 5, and stores the pointer. 
+// If client->getFd() (for example, 5) does not exist in the tree,
+// the map allocates memory, creates a new node with key 5, and stores the pointer.
 // If key 5 already exists, it simply overwrites the old pointer.
 void Channel::removeMember(int fd)
 {
@@ -91,15 +91,14 @@ void Channel::addOperator(int fd)
 		operators.push_back(fd);
 }
 
-
 void Channel::removeOperator(int fd)
 {
 	std::vector<int>::iterator it = std::find(operators.begin(), operators.end(), fd);
 	if (it != operators.end())
 		operators.erase(it);
 }
-//to delete items from a vector we must provid its memory address
-// we use find to get that.
+// to delete items from a vector we must provid its memory address
+//  we use find to get that.
 bool Channel::isOperator(int fd) const
 {
 	return std::find(operators.begin(), operators.end(), fd) != operators.end();

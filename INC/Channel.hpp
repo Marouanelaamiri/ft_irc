@@ -3,23 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:11 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/03 20:51:14 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/09 18:50:43 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include <string>
+#include "IClient.hpp"
 #include <map>
-#include <vector>
 #include <algorithm>
 #include <sstream>
 #include <ctime>
-#include "IClient.hpp"
 
 class Channel
 {
@@ -28,8 +26,8 @@ private:
 	std::string name;		  // Must start with # or &
 	std::string topic;		  // Set via TOPIC command
 	std::string creationTime; // Timestamp for RPL_CREATIONTIME (329)
-	std::string topicsetter;	  // Optional topic setter for RPL_TOPIC (332)
-	std::string topicsettime;  // Optional topic set time for RPL_TOPIC (332)
+	std::string topicsetter;  // Optional topic setter for RPL_TOPIC (332)
+	std::string topicsettime; // Optional topic set time for RPL_TOPIC (332)
 
 	// --- Mode State (Subject Requirements) ---
 	bool inviteOnly;  // Mode i
