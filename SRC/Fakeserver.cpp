@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/07 11:13:26 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/09 22:27:33 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,12 @@ void Server::init(int port, std::string password)
 				if (_fds[i].fd == _serverFd)
 					acceptNewClient();
 				else
+				{
 					receiveData(_fds[i].fd);
+					if (_fds[i].fd > 0)
+						break;
+					
+				}
 			}
 			// Handle outgoing data
 			if (_fds[i].revents & POLLOUT)
