@@ -6,7 +6,7 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/09 18:55:43 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/09 21:03:47 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,11 @@ void Server::init(int port, std::string password)
             	if (_fds[i].fd == _serverFd)
             		acceptNewClient();
             	else
+                {
             		receiveData(_fds[i].fd);
+                    if (i >= _fds.size())
+                        break;
+                }
             }
             if (_fds[i].revents & POLLOUT)
             	sendData(_fds[i].fd);
@@ -214,12 +218,12 @@ void Server::disconnectClient(int fd)
 	close(fd);
 	delete _clients[fd];
 	_clients.erase(fd);
-
-	for (std::vector<struct pollfd>::iterator it = _fds.begin(); it != _fds.end(); ++it)
+    std::vector<struct pollfd>::iterator it;
+	for (it = _fds.begin(); it != _fds.end(); ++it)
 	{
 		if (it->fd == fd)
 		{
-			_fds.erase(it);
+			_fds.erase(it); 
 			break;
 		}
 	}
