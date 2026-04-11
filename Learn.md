@@ -28,7 +28,13 @@ SOCK_STREAM = TCP (reliable, ordered). This gives you a file descriptor.
 ```cpp
 int opt = 1;
 setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+// server_fd: The integer the OS gave you from socket().
+// SOL_SOCKET: This tells the OS which layer of the networking stack you are configuring. You are configuring the Socket Level itself, not the underlying TCP protocol layer.
+// SO_REUSEADDR: The specific option you want to change (Socket Option: Reuse Address).
+// &opt: A pointer to the value you want to set. Because you want to turn it on (true), you pass a pointer to an integer with the value 1.
+// sizeof(opt): The OS needs to know the exact size in memory of the value you just passed.
 ```
+
 Without this, if your server crashes and you restart it immediately, bind() fails with "Address already in use" for ~60 seconds. The OS holds the port in TIME_WAIT. SO_REUSEADDR skips that wait. During development you restart constantly — this line saves your sanity.
 
 ```cpp
@@ -138,6 +144,13 @@ Before listen(), your socket exists but it's just an endpoint — nobody can con
 fcntl(_serverFd, F_SETFL, O_NONBLOCK);
 ```
 This one line changes how recv() and accept() behave when there is nothing to read.
+fcntl() to make the socket non-blocking, the rules for recv() have changed:
+
+bytes > 0: Data was successfully read.
+
+bytes == 0: The client intentionally closed the connection (a clean disconnect).
+
+bytes < 0: An error occurred. HOWEVER, if there is simply no data waiting to be read right now, recv() will return -1 and set a system variable called errno to EWOULDBLOCK or EAGAIN.
 
 ---
 
@@ -195,3 +208,69 @@ POLLIN can trigger for two reasons:
   + A New Message: If the file descriptor is an Existing Client.
 
   
+```
+=======================================================================
+                   PART 1: SERVER INITIALIZATION
+=======================================================================
+                                  |
+                                  v
+                          [ 1. socket() ]
+                                  |  \___ Creates the hidden Socket in the OS.
+                                  |       Gives you File Descriptor (e.g., FD 3).
+                                  v
+                    [ 2. setsockopt(SO_REUSEADDR) ]
+                                  |  \___ Bypasses the 60-second TIME_WAIT lock.
+                                  |       Fixes "Address already in use".
+                                  v
+                      [ 3. fcntl(O_NONBLOCK) ]
+                                  |  \___ Flips the switchboard!
+                                  |       Protects server from freezing on accept().
+                                  v
+                     [ 4. bind(Port 6667) ] *struct sockaddr_in address;*
+       .sin_family = AF_INET;__/  |  \___ IPv4 address
+     sin_addr.s_addr = INADDR_ANY;|  \___ INADDR_ANY tells the OS accept IRC connections 
+                                  |         from (Wi-Fi, Ethernet, and a local)
+         .sin_port = htons(port); |  \___ Attaches FD 3 to your local IP and Port.
+    htons(Host TO Network Short) => flips binary bits into the exact order the Internet expects(Big Endian -> Little Endian)
+                            [ 5. listen() ]
+                                  |  \___ Flips the socket to "Passive" mode.
+                                  |       Starts queueing incoming users.
+                                  v
+=======================================================================
+                   PART 2: THE MAIN EVENT LOOP
+=======================================================================
+                             |
++--------------------------->| <--------------------------------------+
+|                            v                                        |
+|              [ 6. poll() ] or [ select() ]                          |
+|                            |  \___ The Traffic Manager.             |
+|                            |       Sleeps until someone sends data. |
+|                            v                                        |
+|                     (Event Happens!)                                |
+|                            |                                        |
+|                Is it the SERVER FD (FD 3)?                          |
+|                 /                     \                             |
+|               YES                      NO (It is a Client FD)       |
+|               /                         \                           |
+|              v                           v                          |
+|       [ accept() ]              [ recv(Client FD) ]                 |
+|              |                           |                          |
+|              |                           |                          |
+|  [ fcntl(Client, O_NONBLOCK) ]           +--> How many bytes?       |
+|   (Must protect client too!)             |                          |
+|              |                           |                          |
+|              v                      [ > 0 ] --> Save to inBuffer.   |
+|   [ Add new Client FD to ]          [ == 0] --> Clean Disconnect.   |
+|   [ the poll() array     ]          [ < 0 ] --> Check errno!        |
+|              |                                        |             |
+|              |                                        v             |
+|              |                                 Is EWOULDBLOCK?      |
+|              |                                  /           \       |
+|              |                                YES            NO     |
+|              |                                /               \     |
+|              |               (False alarm, skip!)        (Real Error)
+|              |                              /                   \   |
+|              +-----------------------------+               [ close() ]
+|                                                                     |
++---------------------------------------------------------------------+
+```

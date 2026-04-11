@@ -27,20 +27,16 @@ int main(int ac, char **av) {
     Server serve;
     std::cout << "---- SERVER ----" << std::endl;
     try {
-        // Handle signals to prevent abrupt background crashing
-        signal(SIGINT, Server::SignalHandler); // Ctrl+C
-        signal(SIGQUIT, Server::SignalHandler); // Ctrl+\ .
-        signal(SIGPIPE, SIG_IGN); // closed sockets of client
+        signal(SIGINT, Server::SignalHandler);
+        signal(SIGQUIT, Server::SignalHandler);
+        signal(SIGPIPE, SIG_IGN);
 
         if (!isPortPassValid(av[1], av[2]))
             return 1;
-
-        // Pass control to the engine loop
         serve.init(std::atoi(av[1]), av[2]);
     }
     catch (const std::exception& e) {
-        // If the Parser or Engine throws a fatal error, it lands here.
-        // serve.close_fds();
+        serve.close_fds();
         std::cerr << "\n[CRITICAL ERROR] Server crashed: " << e.what() << std::endl;
     }
 

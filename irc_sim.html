@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server I/O Loop Simulation</title>
+    <style>
+        body { font-family: monospace; background-color: #1e1e2e; color: #cdd6f4; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { display: flex; gap: 20px; margin-bottom: 20px; width: 100%; max-width: 800px; justify-content: space-between; }
+        .box { background-color: #313244; padding: 20px; border-radius: 8px; border: 2px solid #585b70; text-align: center; width: 30%; }
+        .server { width: 40%; border-color: #89b4fa; transition: background-color 0.3s; }
+        .frozen { background-color: #f38ba8 !important; border-color: #eba0ac !important; }
+        button { background-color: #89b4fa; color: #1e1e2e; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #b4befe; }
+        button:disabled { background-color: #585b70; cursor: not-allowed; }
+        .slow-btn { background-color: #f9e2af; }
+        .slow-btn:hover { background-color: #f5e0dc; }
+        #log { background-color: #11111b; width: 100%; max-width: 800px; height: 300px; overflow-y: scroll; padding: 10px; border-radius: 8px; border: 1px solid #585b70; }
+        .toggle-container { margin-bottom: 20px; }
+        .log-entry { margin: 2px 0; }
+        .err { color: #f38ba8; }
+        .ok { color: #a6e3a1; }
+        .warn { color: #f9e2af; }
+    </style>
+</head>
+<body>
+
+    <h2>Server I/O Loop Simulation</h2>
+
+    <div class="toggle-container">
+        <label style="font-size: 1.2rem;">
+            <input type="radio" name="mode" id="modeBlocking" value="blocking" checked> <strong>Blocking Mode (No fcntl)</strong>
+        </label>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label style="font-size: 1.2rem;">
+            <input type="radio" name="mode" id="modeNonBlocking" value="nonblocking"> <strong>Non-Blocking Mode (fcntl O_NONBLOCK)</strong>
+        </label>
+    </div>
+
+    <div class="container">
+        <div class="box" id="clientA">
+            <h3>Client A</h3>
+            <p>Terrible Wi-Fi Connection</p>
+            <button class="slow-btn" onclick="triggerClientA()">Send "PASS" (Takes 4s)</button>
+        </div>
+
+        <div class="box server" id="serverBox">
+            <h3 id="serverStatus">Server: Listening...</h3>
+            <p>while(!_signal) { poll(); }</p>
+        </div>
+
+        <div class="box" id="clientB">
+            <h3>Client B</h3>
+            <p>Gigabit Fiber Connection</p>
+            <button onclick="triggerClientB()">Send "PING"</button>
+        </div>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const logEl = document.getElementById('log');
+        const serverBox = document.getElementById('serverBox');
+        const serverStatus = document.getElementById('serverStatus');
+        let isServerFrozen = false;
+        let queuedClientB = 0;
+
+        function logMsg(msg, type="info") {
+            const span = document.createElement('div');
+            span.className = `log-entry ${type}`;
+            span.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(span);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function getMode() {
+            return document.getElementById('modeBlocking').checked ? 'blocking' : 'nonblocking';
+        }
+
+        function triggerClientB() {
+            logMsg("Client B: Sent 'PING'", "info");
+            if (isServerFrozen) {
+                logMsg("OS: Server is stuck waiting for someone else. Queueing Client B's message in the kernel buffer...", "warn");
+                queuedClientB++;
+            } else {
+                logMsg("Server: recv() called on Client B. Instantly read 'PING'. Replied 'PONG'.", "ok");
+            }
+        }
+
+        function triggerClientA() {
+            const mode = getMode();
+            logMsg("Client A: Started sending 'PASS'...", "info");
+
+            if (mode === 'blocking') {
+                logMsg("Server: recv() called on Client A. Waiting for rest of data...", "warn");
+                freezeServer();
+                
+                setTimeout(() => {
+                    logMsg("Client A: Finally finished sending 'PASS'.", "ok");
+                    unfreezeServer();
+                    logMsg("Server: recv() finished. Processed Client A.", "ok");
+                    
+                    // Process the queue that built up while frozen
+                    while(queuedClientB > 0) {
+                        logMsg("Server: Catching up! Read queued 'PING' from Client B.", "ok");
+                        queuedClientB--;
+                    }
+                }, 4000);
+
+            } else {
+                logMsg("Server: recv() called on Client A.", "info");
+                logMsg("Server: recv() instantly returned -1 (EWOULDBLOCK). No data yet, moving on!", "ok");
+                
+                setTimeout(() => {
+                    logMsg("Client A: Finally finished sending 'PASS'.", "info");
+                    logMsg("Server: Loop came back around. recv() called. Processed Client A.", "ok");
+                }, 4000);
+            }
+        }
+
+        function freezeServer() {
+            isServerFrozen = true;
+            serverBox.classList.add('frozen');
+            serverStatus.innerText = "Server: FROZEN (Waiting on recv)";
+            document.querySelectorAll('button').forEach(b => {
+                if(b.innerText.includes("PASS")) b.disabled = true; 
+            });
+        }
+
+        function unfreezeServer() {
+            isServerFrozen = false;
+            serverBox.classList.remove('frozen');
+            serverStatus.innerText = "Server: Listening...";
+            document.querySelectorAll('button').forEach(b => b.disabled = false);
+        }
+    </script>
+</body>
+</html>

@@ -72,4 +72,75 @@ ircserv/
 ```
 
 ---
-
+```
+=======================================================================
+                   PART 1: SERVER INITIALIZATION
+=======================================================================
+                                  |
+                                  v
+          [ 1. socket(AF_INET, SOCK_STREAM, 0) ]
+    AF_INET ____________/  |  \___ Domain: IPv4 network address family
+    SOCK_STREAM ___________|  \___ Type: TCP (Reliable, sequenced stream)
+    0 ________________________|  \___ Protocol: Default (OS picks TCP for stream)
+                                  |       Returns File Descriptor (e.g., FD 3)
+                                  v
+      [ 2. setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, size) ]
+    SOL_SOCKET _________/  |  \___ Level: Configure the socket layer itself
+    SO_REUSEADDR __________|  \___ Option: Force OS to bypass TIME_WAIT lock
+                                  |       Fixes "Address already in use" on restart
+                                  v
+       [ 3. fcntl(fd, F_SETFL, flags | O_NONBLOCK) ]
+    F_GETFL (Step 1) ___/  |  \___ Gets a snapshot of current hidden OS switches
+    flags | O_NONBLOCK ____|  \___ Bitwise OR (|) merges new Non-Blocking switch
+                                  |       WITHOUT erasing the old configurations
+                                  v
+                     [ 4. bind(Port 6667) ] *struct sockaddr_in address;*
+       .sin_family = AF_INET;__/  |  \___ Matches the socket() domain
+     sin_addr.s_addr = INADDR_ANY;|  \___ INADDR_ANY (0.0.0.0) tells OS to accept
+                                  |       connections from all network interfaces
+         .sin_port = htons(port); |  \___ htons (Host TO Network Short)
+                                  |       Flips binary to what the Internet expects
+                                  |       (Host Little Endian -> Network Big Endian)
+                                  v
+                      [ 5. listen(fd, 10) ]
+    10 (Backlog) ________/ |  \___ Max queue size of pending clients waiting
+                                  |       Flips the socket to "Passive" mode
+                                  v
+=======================================================================
+                   PART 2: THE MAIN EVENT LOOP
+=======================================================================
+                             |
++--------------------------->| <--------------------------------------+
+|                            v                                        |
+|          [ 6. poll(&_fds[0], _fds.size(), -1) ]                     |
+|      POLLIN _______/ | \___ -1 Timeout: Sleep infinitely until event|
+|      POLLOUT ________| \___ Tracks which FDs have data ready to read|
+|                            v                                        |
+|                     (Event Happens!)                                |
+|                            |                                        |
+|                Is it the SERVER FD (FD 3)?                          |
+|                 /                     \                             |
+|               YES                      NO (It is a Client FD)       |
+|               /                         \                           |
+|              v                           v                          |
+| [ accept(serverFd, &clientAddr..) ] [ recv(Client FD, buffer, size, 0) ]
+|              |                           |                          |
+|              |                           |                          |
+|  [ fcntl(Client, O_NONBLOCK) ]           +--> How many bytes?       |
+|   (Must protect client too!)             |                          |
+|              |                           |                          |
+|              v                      [ > 0 ] --> Save to inBuffer.   |
+|   [ Add new Client FD to ]          [ == 0] --> Clean Disconnect.   |
+|   [ the poll() array     ]          [ < 0 ] --> Check errno!        |
+|   [ Set events = POLLIN  ]                    |                     |
+|              |                                v                     |
+|              |                         Is EWOULDBLOCK / EAGAIN?     |
+|              |                          /           \               |
+|              |                        YES            NO             |
+|              |                        /               \             |
+|              |          (False alarm, skip!)        (Real Error)    |
+|              |                         /                   \        |
+|              +------------------------+               [ close() ]   |
+|                                                                     |
++---------------------------------------------------------------------+
+```
