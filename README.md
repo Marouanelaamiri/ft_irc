@@ -1,75 +1,141 @@
-# The Learning Order
+*This project has been created as part of the 42 curriculum by malaamir, bchafi.*
 
-| # | Topic | Why it blocks everything else |
-|---|---|---|
-| 1 | `socket()` + `bind()` + `listen()` + `accept()` | Without this, nothing runs |
-| 2 | `poll()` loop | Without this, only 1 client works |
-| 3 | Non-blocking `recv()` + buffer management | Without this, server crashes on partial data |
-| 4 | IRC message parser (`\r\n` splitting) | Without this, no command works |
-| 5 | PASS + NICK + USER + RPL_WELCOME | Without this, no client can register |
-| 6 | JOIN + PART + PRIVMSG + QUIT | The core of IRC |
-| 7 | Channel modes (`i t k o l`) | Required by 42 subject |
-| 8 | KICK + INVITE + TOPIC | Operator features |
+# ft_irc
 
----
+## Description
 
-# TCP Sockets
-A **socket** is just a file descriptor — an integer — that the OS gives you to represent a network connection. 
-When you create a TCP server:
-    - socket() → bind() → listen() → accept(). 
-- *Think* of it like opening a shop: you build the shop (socket), put it on a street with an address (bind), hang an "Open" sign (listen), then serve customers one by one (accept). Everything in your IRC server depends on getting this foundation right.
+**ft_irc** is a custom, single-server Internet Relay Chat (IRC) daemon written in C++98. 
 
-```ts
-A socket = just an integer (file descriptor)
+The primary goal of this project is to explore and implement low-level network programming using BSD sockets, non-blocking I/O multiplexing with `poll()`, and strict protocol parsing following IRC RFC standards. The server manages complex internal states, including client authentication, channel memberships, and moderation modes, while remaining robust against partial data transmissions and unexpected disconnects.
 
-server_fd → the front door (listens, accepts)
-client_fd → a room key (one per client, talks)
+**Key Focuses:**
+* Building a stable, event-driven server architecture without relying on threading.
+* Strict IRC registration flow and command handling.
+* Binary-safe payload routing (essential for handling CTCP handshakes and DCC file transfers).
+* Modular object-oriented design cleanly separating Server, Client, Channel, and Parser responsibilities.
+* Safe resource management and memory leak prevention.
 
-0 = stdin
-1 = stdout  
-2 = stderr
-3 = your first socket  ← OS picks next available number
+## Instructions
 
-server_fd stays open FOREVER
-client_fd created NEW for each client that connects
+### Requirements
+* A POSIX-compatible operating system (Linux/macOS).
+* A C++ compiler (`c++`, `g++`, or `clang++`) supporting the C++98 standard.
+* `make` for compilation.
 
-int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-AF_INET      → I want IPv4  (the normal internet)
-SOCK_STREAM  → I want TCP   (reliable, ordered data)
-0            → let OS pick the protocol automatically
-
-IRC is a chat protocol
-
-SOCK_STREAM = TCP → reliable, ordered ← IRC needs this
-SOCK_DGRAM  = UDP → fast, but data can be lost/out of order
-
-IRC is a chat protocol — if messages arrive out of order or get lost, 
-    -> the chat is broken. So TCP is the only choice.
+### Compilation
+From the root of the repository, compile the mandatory server binary:
+```bash
+make
+```
+To compile with the additional bonus features (Bot and File Transfer capabilities):
+```bash
+make bonus
 ```
 
+### Execution
+Run the server by providing a port number and a connection password:
+```bash
+./ircserv <port> <password>
+```
+* **port**: Must be a valid, open network port (e.g., `6667`).
+* **password**: Required by all clients using the `PASS` command to authenticate.
 
+*Example:*
+```bash
+./ircserv 6667 my_secure_password
+```
 
-# 🏗️ Architecture Design
-Structure your project like this:
-```zsh
-ircserv/
+### Connecting with a Client
+You can connect using a graphical IRC client like **HexChat** or **LimeChat**, or manually via terminal using **Netcat**.
+
+**Netcat Example:**
+```bash
+nc -C localhost 6667
+```
+Once connected, manually enter the registration sequence:
+```text
+PASS my_secure_password
+NICK my_nickname
+USER my_username 0 * :Real Name
+```
+
+**Testing Basic Commands:**
+```text
+JOIN #general
+PRIVMSG my_nickname :Hello, world!
+TOPIC #general :Welcome to the server
+```
+
+## Project Structure
+```text
+.
+├── Makefile
+├── README.md
+├── cmd/
+|	├── INVITE.cpp
+|	├── JOIN.cpp
+|	├── KICK.cpp
+|	├── MODE.cpp
+|	├── PRIVMSG.cpp
+|	├── TOPIC.cpp
+├── inc/
+│   ├── Server.hpp
+│   ├── Client.hpp
+|	├── IClient.hpp
+│   ├── Channel.hpp
+│   └── Parser.hpp
 ├── src/
-│   ├── Server.cpp       ← core loop, poll(), accept()
-│   ├── Client.cpp       ← per-client state
-│   ├── Channel.cpp      ← channel management
-│   ├── Parser.cpp       ← message parsing
-│   └── commands/
-│       ├── NICK.cpp
-│       ├── USER.cpp
-│       ├── JOIN.cpp
-│       ├── PRIVMSG.cpp
-│       ├── KICK.cpp
-│       ├── INVITE.cpp
-│       ├── TOPIC.cpp
-│       └── MODE.cpp
-├── include/
-└── Makefile
+│   ├── main.cpp
+│   ├── Server.cpp
+│   ├── Client.cpp
+│   ├── Channel.cpp
+│   ├── Parser.cpp
+│   └── Commands.cpp
+└── bonus/
+    └── Bot.cpp
 ```
 
----
+## Resources
 
+**References:**
+* [RFC 1459: Internet Relay Chat Protocol](https://www.rfc-editor.org/rfc/rfc1459.html)
+* [Modern IRC Client Protocol Documentation](https://modern.ircdocs.horse/)
+* [IBM Docs: Socket Programming](https://www.ibm.com/docs/en/i/7.4.0?topic=ssw_ibm_i_74/apis/socket.html)
+* [GeeksforGeeks: Socket Programming in C/C++](https://www.geeksforgeeks.org/computer-networks/socket-in-computer-network/)
+
+**AI Usage:**
+Artificial Intelligence (ChatGPT/Gemini) was utilized during the development of this project to:
+* Clarify ambiguous RFC behaviors and expected edge-case responses (e.g., numeric reply orders during registration).
+* Debug and explain low-level binary data handling (specifically troubleshooting the preservation of the `\x01` SOH byte required for DCC file transfer handshakes).
+* Format and structure this `README.md` document.
+
+*Note: All core logic, memory management, and architectural decisions were manually implemented and reviewed by the authors. AI was strictly used as a research and debugging assistant.*
+
+## Feature List
+
+### Mandatory Features
+* **TCP Server:** Custom implementation using native BSD sockets.
+* **I/O Multiplexing:** Utilizes `poll()` to handle multiple simultaneous client connections without blocking.
+* **Registration Flow:** Complete handling of `PASS`, `NICK`, and `USER` with proper authentication checks.
+* **Messaging:** Direct user-to-user and user-to-channel communication (`PRIVMSG`).
+* **Channel Management:** Users can create, join, and leave channels (`JOIN`, `PART`).
+* **Moderation & Modes:** Supports `KICK`, `INVITE`, `TOPIC`, and specific channel modes (`i`, `t`, `k`, `o`, `l`).
+* **Protocol Accuracy:** Accurate IRC numeric replies and formatted error handling.
+
+### Bonus Features
+* **File Transfer Routing:** The server is entirely binary-safe, correctly routing CTCP `\x01DCC SEND\x01` handshakes between clients to facilitate peer-to-peer file transfers.
+* **IRC Bot:** An integrated automated bot that listens to specific commands and interacts with users dynamically.
+
+## Authors & Contributions
+
+* **bchafi**
+  * Core Server architecture and event loop (`poll()`).
+  * Client object management and socket initialization.
+  * File transfer implementation (Server-side binary buffer routing).
+  * Bonus IRC Bot implementation.
+
+* **malaamir**
+  * Protocol parsing engine and string manipulation.
+  * Implementation of IRC Commands and routing logic.
+  * Channel management architecture.
+  * File transfer implementation (CTCP/DCC command parsing logic).

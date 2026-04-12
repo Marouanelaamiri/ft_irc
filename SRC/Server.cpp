@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
+/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/09 21:03:47 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/12 17:02:58 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Parser.hpp"
 
 bool Server::_signal = false;
 
@@ -162,16 +163,15 @@ void Server::processMessages(Client *client)
 {
 	size_t      pos;
 	std::string raw_msg;
-	Parser      parser;
 	int         safeFd;
     
     safeFd = client->getFd();
 	while ((pos = client->inBuffer.find("\r\n")) != std::string::npos)
 	{
-		std::string raw_msg = client->inBuffer.substr(0, pos);
+		raw_msg = client->inBuffer.substr(0, pos);
 		client->inBuffer.erase(0, pos + 2);
 
-		IRCmessage msg = parser.parse(raw_msg);
+		IRCmessage msg = parse(raw_msg);
 
 		if (msg.command == "PASS")
 			this->handlePass(*client, msg);
