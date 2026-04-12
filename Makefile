@@ -15,7 +15,7 @@ SRC = $(SRC_DIR)/Auth.cpp \
       $(CMD_DIR)/MODE.cpp \
       $(CMD_DIR)/PRIVMSG.cpp \
       $(CMD_DIR)/TOPIC.cpp \
-      $(SRC_DIR)/main.cpp \
+      main.cpp \
 	 
 
 HEADERS = $(INC_DIR)/Channel.hpp \

@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/12 17:02:58 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/12 20:58:02 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void Server::init(int port, std::string password)
 {
     int opt;
 
-    _password = password;    
+    _password = password;
     _serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (_serverFd < 0)
         throw std::runtime_error("Failed to create socket");
@@ -66,7 +66,10 @@ void Server::init(int port, std::string password)
     if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
         throw std::runtime_error("setsockopt failed");
 
-    if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) < 0)
+    int flags = fcntl(_serverFd, F_GETFL, 0);
+    if (flags < 0)
+        throw std::runtime_error("fcntl F_GETFL failed");
+    if (fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) < 0)
         throw std::runtime_error("fcntl failed");
 
     struct sockaddr_in address;
@@ -128,8 +131,14 @@ void Server::acceptNewClient()
 
     if (clientFd < 0)
 		return;
-	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
-		return;
+    int flags = fcntl(clientFd, F_GETFL, 0);
+    if (flags < 0)
+        throw std::runtime_error("fcntl F_GETFL failed");
+
+    if (fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) < 0)
+    {
+        throw std::runtime_error("fcntl failed");
+    }
 
 	struct pollfd client_poll;
 	client_poll.fd = clientFd;
@@ -144,19 +153,27 @@ void Server::acceptNewClient()
 
 void Server::receiveData(int fd)
 {
-	char buffer[BUFFER_SIZE];
-	std::memset(buffer, 0, sizeof(buffer));
-
+    char buffer[BUFFER_SIZE];
+    std::memset(buffer, 0, sizeof(buffer));
     int bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
-    if (bytes <= 0)
+    if (bytes < 0) 
     {
-		std::cout << "Client <" << fd << "> Disconnected" << std::endl;
+        if (errno == EWOULDBLOCK || errno == EAGAIN)
+            return;
+        
+        std::cout << "Client <" << fd << "> Error/Disconnected" << std::endl;
+        disconnectClient(fd);
+        return;
+    }
+    else if (bytes == 0)
+    {
+        std::cout << "Client <" << fd << "> Disconnected" << std::endl;
         disconnectClient(fd);
         return;
     }
 
-	_clients[fd]->inBuffer += buffer;
-	processMessages(_clients[fd]);
+    _clients[fd]->inBuffer += buffer;
+    processMessages(_clients[fd]);
 }
 
 void Server::processMessages(Client *client)
@@ -205,8 +222,17 @@ void Server::processMessages(Client *client)
 void Server::sendData(int fd)
 {
 	Client *client = _clients[fd];
+    int flags;
+    
 	if (client->outBuffer.empty())
-		return;
+        return;
+    flags = fcntl(fd, F_GETFL, 0);
+    if (flags < 0)
+        throw std::runtime_error("fcntl F_GETFL failed");
+    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+    {
+        throw std::runtime_error("fcntl failed");
+    }
 
 	int bytes = send(fd, client->outBuffer.c_str(), client->outBuffer.length(), 0);
 	if (bytes > 0)
