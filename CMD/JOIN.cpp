@@ -6,7 +6,7 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 20:59:06 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/12 20:56:43 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/13 19:13:09 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,8 @@ void Server::handleJoin(IClient &client, const IRCmessage &msg)
 
 		// RPL_NAMREPLY (353) and RPL_ENDOFNAMES (366)
 		std::string namesList = "";
-		std::map<int, IClient *> members = channel->getMembers();
-		for (std::map<int, IClient *>::iterator it = members.begin(); it != members.end(); ++it)
+		const std::map<int, IClient *> &members = channel->getMembers();
+		for (std::map<int, IClient *>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{
 			if (channel->isOperator(it->first))
 				namesList += "@";
