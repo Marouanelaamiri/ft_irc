@@ -62,8 +62,30 @@ USER my_username 0 * :Real Name
 **Testing Basic Commands:**
 ```text
 JOIN #general
-PRIVMSG my_nickname :Hello, world!
-TOPIC #general :Welcome to the server
+JOIN #help,#coding
+JOIN #secret mypassword
+
+PRIVMSG #general :Hello everyone in the channel!
+PRIVMSG Shaco :Hey Shaco, this is a private DM!
+
+TOPIC #general                             # View the current topic
+TOPIC #general :Welcome to the server!     # Set a new topic
+TOPIC #general :                           # Clear the topic completely
+
+MODE #general                              # Query current modes (returns 324)
+MODE #general +t                           # Turn ON Topic Protection (Operators only)
+MODE #general -t                           # Turn OFF Topic Protection
+MODE #general +i                           # Turn ON Invite-Only mode
+MODE #general +k secretpass                # Set a channel password
+MODE #general -k                           # Remove the channel password
+MODE #general +l 5                         # Limit the channel to 5 users
+MODE #general +o Shaco                     # Grant Operator status to Shaco
+MODE #general -o Shaco                     # Revoke Operator status from Shaco
+MODE #general +it-k                        # Chained testing: +i, +t, and remove password
+
+INVITE Shaco #general                      # Invite a user to an Invite-Only (+i) channel
+KICK #general Shaco                        # Kick a user (default reason)
+KICK #general Shaco :Stop spamming!        # Kick a user with a custom reason
 ```
 
 ## Project Structure
