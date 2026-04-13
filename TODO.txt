@@ -1,2 +1,0 @@
-recheck kick/mode/privmsg/topic 
-understand the file handling transfer codes.

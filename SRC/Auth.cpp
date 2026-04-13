@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Auth.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
+/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:09:14 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/09 18:19:11 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/13 20:03:49 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,20 +18,20 @@ void Server::handlePass(IClient &client, const IRCmessage &msg)
 {
 	if (client.isRegistered())
 	{
-		client.pushToOutputBuffer("462 :ERR_ALREADYREGISTRED\r\n");
+		client.pushToOutputBuffer("462" + client.getNickname() + " : Already registered\r\n");
 		return;
 	}
 
 	if (msg.params.empty())
 	{
-		client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
+		client.pushToOutputBuffer("461" + client.getNickname() + " :Need more parameters\r\n");
 		return;
 	}
 
 	if (msg.params[0] == _password)	
 		client.setEnteredPassword(true);
 	else
-		client.pushToOutputBuffer("464 :ERR_PASSWDISMATCH\r\n");
+		client.pushToOutputBuffer("464" + client.getNickname() + " :Invalid password\r\n");
 	return;
 }
 
@@ -40,18 +40,18 @@ void Server::handleNick(IClient &client, const IRCmessage &msg)
 	std::string newNick;
 	std::string oldNick;
     if (!client.hasEnteredPassword()) {
-        client.pushToOutputBuffer("451 :ERR_NOTREGISTERED\r\n");
+        client.pushToOutputBuffer("451" + client.getNickname() + " :Not registered\r\n");
         return;
     }
     if (msg.params.empty()) {
-        client.pushToOutputBuffer("431 :ERR_NONICKNAMEGIVEN\r\n");
+        client.pushToOutputBuffer("431" + client.getNickname() + " :No nickname given\r\n");
         return;
     }
 	newNick = msg.params[0];
 	std::map<int, Client *>::iterator it;
     for (it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->second->getNickname() == newNick) {
-			client.pushToOutputBuffer("433 :ERR_NICKNAMEINUSE\r\n");
+			client.pushToOutputBuffer("433" + client.getNickname() + " :Nickname is already in use\r\n");
 			return;
 		}
 	}
@@ -71,19 +71,19 @@ void Server::handleUser(IClient &client, const IRCmessage &msg)
 {
 	if (client.isRegistered())
 	{
-		client.pushToOutputBuffer("462 :ERR_ALREADYREGISTRED\r\n");
+		client.pushToOutputBuffer("462" + client.getNickname() + " :Already registered\r\n");
 		return;
 	}
 
 	if (!client.hasEnteredPassword())
 	{
-		client.pushToOutputBuffer("451 :ERR_NOTREGISTERED\r\n");
+		client.pushToOutputBuffer("451" + client.getNickname() + " :Not registered\r\n");
 		return;
 	}
 
 	if (msg.params.size() < 4)
 	{
-		client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
+		client.pushToOutputBuffer("461" + client.getNickname() + " :Need more parameters\r\n");
 		return;
 	}
 
