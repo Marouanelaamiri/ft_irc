@@ -1,10 +1,5 @@
-#include "Server.hpp"
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <cstring>
-#include <csignal>
-#include <exception>
+#include "./INC/Server.hpp"
+
 
 bool isPortPassValid(std::string port, std::string password) {
     if (port.find_first_not_of("0123456789") != std::string::npos)

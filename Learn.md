@@ -274,3 +274,33 @@ POLLIN can trigger for two reasons:
 |                                                                     |
 +---------------------------------------------------------------------+
 ```
+
+The Server is a building. The Bot is a visitor.
+Bot: socket(AF_INET, SOCK_STREAM, 0) -> ask the OS for a File Descriptor that speaks IPv4 (AF_INET) and TCP (SOCK_STREAM).
+
+- Server: address.sin_addr.s_addr = INADDR_ANY; -> I am opening my doors. I will accept connections from my (local || Wi-Fi || router || Ethernet cable).
+- Bot: inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) -> (Pointer to Network) to convert a human-readable IP like "127.0.0.1" into raw binary. looking for unique network.
+
+# (bind vs. connect):
+- Server: Uses bind(6667) and listen() : forces the OS to lock port 1024   exclusively for your server. listen() turns on the open sign.
+- Bot: Uses connect()
+whene you want to connect to a server the os give you a random port (temrory) to send message from. Connect() -> TCP 3hand-shake -> reach the network -> knocks the server door -> establish.
+
+# The Event Loop:
+The bot only has one File Descriptor, waiting for the server to speak. It has no other clients to worry about.
+
+
+
+
+
+
+
+
+
+
+PASS e
+NICK Bader
+USER bader * 0 : hello world
+JOIN #general
+
+

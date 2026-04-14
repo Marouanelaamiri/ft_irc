@@ -1,4 +1,5 @@
 NAME = ircserv
+BOT_NAME = bot
 
 INC_DIR = INC
 SRC_DIR = SRC
@@ -15,8 +16,7 @@ SRC = $(SRC_DIR)/Auth.cpp \
       $(CMD_DIR)/MODE.cpp \
       $(CMD_DIR)/PRIVMSG.cpp \
       $(CMD_DIR)/TOPIC.cpp \
-      main.cpp \
-	 
+      main.cpp 
 
 HEADERS = $(INC_DIR)/Channel.hpp \
           $(INC_DIR)/IClient.hpp \
@@ -29,18 +29,27 @@ OBJ = $(SRC:.cpp=.o)
 C++ = c++
 C++FLAGS = -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
 
-all: $(NAME)
+all: $(NAME) $(BOT_NAME)
 
-$(NAME): $(OBJ)
-	$(C++) $(C++FLAGS) $(OBJ) -o $@
+$(NAME): $(OBJ) 
+	@$(C++) $(C++FLAGS) $(OBJ) -o $@
+	@echo "Compilation complete. Executable created: $(NAME)"
+
+$(BOT_NAME): $(SRC_DIR)/bot.cpp
+	@$(C++) $(C++FLAGS) $(SRC_DIR)/bot.cpp -o $(BOT_NAME)
+	@echo "Compilation complete. Executable created: $(BOT_NAME)"
 
 %.o: %.cpp $(HEADERS)
-	$(C++) $(C++FLAGS) -c $< -o $@
+	@$(C++) $(C++FLAGS) -c $< -o $@
+	@echo "Compiled: $< -> $@"
 
 clean:
-	rm -f $(OBJ)
+	@rm -f $(OBJ)
+	@echo "Cleaned object files."
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME) $(BOT_NAME)
+	@echo "Cleaned executables."
 
 re: fclean all
+	@echo "Recompiled everything."

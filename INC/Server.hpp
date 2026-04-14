@@ -6,7 +6,7 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/09 18:47:51 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/14 17:27:31 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,12 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <cstring>
+#include <cstdlib>
+#include <arpa/inet.h>
+#include <fstream>
+#include <cstdlib>
+#include <exception>
 
 #include "Parser.hpp"
 #include "Client.hpp"
