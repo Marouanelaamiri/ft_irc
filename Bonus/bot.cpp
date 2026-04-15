@@ -1,17 +1,29 @@
-#include "../INC/Server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bot.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/15 10:44:30 by bedro             #+#    #+#             */
+/*   Updated: 2026/04/15 11:12:52 by bedro            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "../INC/Server.hpp"
 
 int main(int argc, char **argv)
 {
-    if (argc != 4)
+    if (argc != 5)
     {
-        std::cerr << "Usage: ./bot <ip> <port> <password>" << std::endl;
+        std::cerr << "Usage: ./bot <ip> <port> <password> <channel>" << std::endl;
         return 1;
     }
 
     std::string ip = argv[1];
     int port = std::atoi(argv[2]);
     std::string password = argv[3];
+    std::string channel = argv[4];
 
     int botSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (botSocket < 0)
@@ -42,9 +54,9 @@ int main(int argc, char **argv)
     send(botSocket, auth.c_str(), auth.length(), 0);
     std::cout << "Bot sent authentication and registration commands." << std::endl;
 
-    std::string join = "JOIN #general\r\n";
+    std::string join = "JOIN #" + channel + "\r\n";
     send(botSocket, join.c_str(), join.length(), 0);
-    std::cout << "Bot joined #general channel." << std::endl;
+    std::cout << "Bot joined #" << channel << " channel." << std::endl;
     char buffer[BUFFER_SIZE];
     std::string inBuffer = "";
 
@@ -69,7 +81,7 @@ int main(int argc, char **argv)
 
             if (line.find("PRIVMSG") != std::string::npos && line.find("!ping") != std::string::npos)
             {
-                std::string reply = "PRIVMSG #general :Pong! My sockets are working perfectly!\r\n";
+                std::string reply = "PRIVMSG #" + channel + " :Pong! My sockets are working perfectly!\r\n";
                 send(botSocket, reply.c_str(), reply.length(), 0);
                 std::cout << "Bot reacted and sent a Pong!" << std::endl;
             }
@@ -85,10 +97,11 @@ int main(int argc, char **argv)
                     int minutes = (totalSeconds % 3600) / 60;
 
                     std::stringstream reply;
-                    reply << "PRIVMSG #general :System Uptime: " << hours << "h " << minutes << "m\r\n";
+                    reply << "PRIVMSG #" + channel + " :System Uptime: " << hours << "h " << minutes << "m\r\n";
                     
                     send(botSocket, reply.str().c_str(), reply.str().length(), 0);
                 }
+                std::cout << "Bot reacted and sent uptime information!" << std::endl;
             }
         }
     }
