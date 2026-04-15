@@ -114,7 +114,7 @@ KICK #general Shaco :Stop spamming!        # Kick a user with a custom reason
 │   ├── Parser.cpp
 │   └── Commands.cpp
 └── bonus/
-    └── Bot.cpp
+    └── bot.cpp
 ```
 
 ## Resources

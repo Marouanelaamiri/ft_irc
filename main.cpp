@@ -1,4 +1,5 @@
 #include "./INC/Server.hpp"
+#include <csignal>
 
 
 bool isPortPassValid(std::string port, std::string password) {
