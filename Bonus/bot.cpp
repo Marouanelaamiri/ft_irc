@@ -6,7 +6,7 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 10:44:30 by bedro             #+#    #+#             */
-/*   Updated: 2026/04/16 14:51:03 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/16 15:01:02 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // 2. Set the Server Address we want to talk to
     struct sockaddr_in serv_addr;
     std::memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
-    inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr); // Converts IP string to binary
+    inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr);
 
     if (connect(botSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -90,7 +89,7 @@ int main(int argc, char **argv)
                 std::ifstream uptimeFile("/proc/uptime");
                 std::string uptimeStr;
                 
-                if (uptimeFile >> uptimeStr) // Reads the first number (seconds)
+                if (uptimeFile >> uptimeStr)
                 {
                     int totalSeconds = std::atoi(uptimeStr.c_str());
                     int hours = totalSeconds / 3600;

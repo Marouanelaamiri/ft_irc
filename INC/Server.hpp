@@ -6,7 +6,7 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:47:16 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/16 14:52:48 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/16 15:04:49 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,6 @@ public:
 	void init(int port, std::string password);
 	void close_fds();
 	static void SignalHandler(int signum);
-
-
-	
-
 };
 
 #endif
