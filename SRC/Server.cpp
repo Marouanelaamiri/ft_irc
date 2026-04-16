@@ -6,13 +6,13 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 01:59:05 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/14 16:38:28 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/16 14:27:08 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "Client.hpp"
-#include "Parser.hpp"
+#include "../INC/Server.hpp"
+#include "../INC/Client.hpp"
+#include "../INC/Parser.hpp"
 
 bool Server::_signal = false;
 
@@ -42,7 +42,6 @@ void Server::close_fds()
 
 	for (size_t i = 0; i < _fds.size(); ++i)
 		close(_fds[i].fd);
-    _fds.clear();
 
 	for (it = _clients.begin(); it != _clients.end(); ++it)
 		delete it->second;
@@ -82,7 +81,7 @@ void Server::init(int port, std::string password)
         throw std::runtime_error(std::string("Bind failed: ") + strerror(errno));
 
     if (listen(_serverFd, 10) < 0)
-        throw std::runtime_error("Listen failed");
+        throw std::runtime_error(std::string("Listen failed: ") + strerror(errno));
 
     struct pollfd srv_poll;
     srv_poll.fd = _serverFd;
@@ -107,8 +106,7 @@ void Server::init(int port, std::string password)
             {
             	if (_fds[i].fd == _serverFd)
             		acceptNewClient();
-            	else
-                {
+                else {
             		receiveData(_fds[i].fd);
                     if (i >= _fds.size())
                         break;
@@ -125,12 +123,12 @@ void Server::init(int port, std::string password)
 
 void Server::acceptNewClient()
 {
-	struct sockaddr_in clientAddr;
-	socklen_t clientLen = sizeof(clientAddr);
-	int clientFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientLen);   
+    struct sockaddr_in clientAddr;
+    socklen_t clientLen = sizeof(clientAddr);
+    int clientFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientLen);   
 
     if (clientFd < 0)
-		return;
+        return;
     int flags = fcntl(clientFd, F_GETFL, 0);
     if (flags < 0)
         throw std::runtime_error("fcntl F_GETFL failed");
@@ -140,13 +138,13 @@ void Server::acceptNewClient()
         throw std::runtime_error("fcntl failed");
     }
 
-	struct pollfd client_poll;
-	client_poll.fd = clientFd;
-	client_poll.events = POLLIN | POLLOUT;
-	client_poll.revents = 0;
+    struct pollfd client_poll;
+    client_poll.fd = clientFd;
+    client_poll.events = POLLIN | POLLOUT;
+    client_poll.revents = 0;
 
-	_fds.push_back(client_poll);
-	_clients[clientFd] = new Client(clientFd);
+    _fds.push_back(client_poll);
+    _clients[clientFd] = new Client(clientFd);
 
     std::cout << "Client <" << clientFd << "> Connected" << std::endl;
 }

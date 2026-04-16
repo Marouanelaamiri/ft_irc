@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Auth.cpp                                           :+:      :+:    :+:   */
+ std::cout << "The Server Closed!" << std::endl;
+    /*   Auth.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:09:14 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/13 20:03:49 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/16 11:34:57 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
-#include "Server.hpp"
-#include "Parser.hpp"
+#include "../INC/Client.hpp"
+#include "../INC/Server.hpp"
+#include "../INC/Parser.hpp"
 
 void Server::handlePass(IClient &client, const IRCmessage &msg)
 {

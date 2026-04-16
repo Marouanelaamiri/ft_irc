@@ -37,6 +37,5 @@ int main(int ac, char **av) {
     }
 
     std::cout << "The Server Closed!" << std::endl;
-    // serve.close_fds();
     return 0;
 }

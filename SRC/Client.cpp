@@ -6,11 +6,11 @@
 /*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/07 13:31:22 by bedro             #+#    #+#             */
-/*   Updated: 2026/04/07 16:40:26 by bedro            ###   ########.fr       */
+/*   Updated: 2026/04/16 11:33:49 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "../INC/Client.hpp"
 
 Client::Client(int fd) : _registered(false), _enteredPassword(false)
 {
