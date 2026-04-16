@@ -6,11 +6,11 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:20:19 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/07 11:24:26 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/13 19:43:03 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Fakeserver.hpp"
+#include "Server.hpp"
 #include "Channel.hpp"
 
 void Server::handlePrivmsg(IClient &client, const IRCmessage &msg)
@@ -18,18 +18,17 @@ void Server::handlePrivmsg(IClient &client, const IRCmessage &msg)
 	// params check
 	if (msg.params.empty())
 	{
-		client.pushToOutputBuffer("411 :ERR_NORECIPIENT\r\n");
+		client.pushToOutputBuffer("411" + client.getNickname() + " No recipient given\r\n");
 		return;
 	}
 	if (msg.params.size() < 2)
 	{
-		client.pushToOutputBuffer("412 :ERR_NOTEXTTOSEND\r\n");
+		client.pushToOutputBuffer("412" + client.getNickname() + " No text to send\r\n");
 		return;
 	}
 	std::string target = msg.params[0];
 	std::string message = msg.params[1];
 	
-	// Format: :SenderNick!~SenderUser@localhost PRIVMSG <target> :<message>
     std::string fullMsg = ":" + client.getNickname() + "!~" + client.getUsername() + "@localhost PRIVMSG " + target + " :" + message + "\r\n";
 	
 	// Check if target is a channel or a user
@@ -39,14 +38,14 @@ void Server::handlePrivmsg(IClient &client, const IRCmessage &msg)
 		std::map<std::string, Channel *>::iterator it = this->channels.find(target);
 		if (it == this->channels.end())
 		{
-			client.pushToOutputBuffer("401 :ERR_NOSUCHNICK\r\n");
+			client.pushToOutputBuffer("401" + client.getNickname() + " " + target + " :No such channel\r\n");
 			return;
 		}
 		Channel *channel = it->second;
 		//CASE check , cant send a message to a channel you're not in
 		if (!channel->isMember(client.getFd()))
 		{
-			client.pushToOutputBuffer("404 :ERR_CANNOTSENDTOCHAN\r\n");
+			client.pushToOutputBuffer("404" + client.getNickname() + " " + target + " :Cannot send to channel\r\n");
 			return;
 		}
 		// Broadcast the message to all members of the channel except the sender
@@ -68,7 +67,7 @@ void Server::handlePrivmsg(IClient &client, const IRCmessage &msg)
 		//if the target user doesn't exist, send error
 		if (targetClient == NULL)
 		{
-			client.pushToOutputBuffer("401 :ERR_NOSUCHNICK\r\n");
+			client.pushToOutputBuffer("401" + client.getNickname() + " " + target + " :No such nick\r\n");
 			return;
 		}
 		// Send the message directly to the target user

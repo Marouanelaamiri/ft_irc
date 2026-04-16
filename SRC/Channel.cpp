@@ -6,19 +6,17 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 02:05:24 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/09 22:46:39 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/13 19:36:42 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
-
-/// --- Constructor & Destructor ---
-Channel::Channel(std::string name) : name(name),
+Channel::Channel(std::string& name) : name(name),
 									 topic(""),
 									 topicsetter(""),
 									 topicsettime(""),
 									 inviteOnly(false),
-									 topicOpOnly(false),
+									 topicOpOnly(true),
 									 key(""),
 									 userLimit(0)
 {
@@ -28,17 +26,15 @@ Channel::Channel(std::string name) : name(name),
 	ss << now;
 	creationTime = ss.str();
 }
-
 Channel::~Channel() {}
 
-// --- Getters ---
 std::string Channel::getName() const { return name; }
 std::string Channel::getTopic() const { return topic; }
 std::string Channel::getCreationTime() const { return creationTime; }
 std::string Channel::getTopicSetter() const { return topicsetter; }
 std::string Channel::getTopicSetTime() const { return topicsettime; }
 size_t Channel::getMemberCount() const { return members.size(); }
-const std::map<int, IClient *> &Channel::getMembers() const { return this->members; }
+const std::map<int, IClient *>& Channel::getMembers() const { return members; }
 std::string Channel::getchannelmodes() const
 {
 	std::string modes = "+";
@@ -59,19 +55,15 @@ std::string Channel::getchannelmodes() const
 		ss << userLimit;
 		param += " " + ss.str();
 	}
-	return modes + param; // Example: "+itk secret 10"
+	return modes + param;
 }
 
-// --- Membership Methods ---
 void Channel::addMember(IClient *client)
 {
 	if (client)
 		members[client->getFd()] = client;
 }
-// The [] operator is the primary way to interact with a std::map.
-// If client->getFd() (for example, 5) does not exist in the tree, 
-//the map allocates memory, creates a new node with key 5, and stores the pointer. 
-// If key 5 already exists, it simply overwrites the old pointer.
+
 void Channel::removeMember(int fd)
 {
 	members.erase(fd);
@@ -81,16 +73,16 @@ void Channel::removeMember(int fd)
 
 bool Channel::isMember(int fd) const
 {
-	return members.find(fd) != members.end();
+	if (members.find(fd) != members.end())
+		return true;
+	return false;
 }
 
-// --- Operator Methods (Mode o) ---
 void Channel::addOperator(int fd)
 {
 	if (std::find(operators.begin(), operators.end(), fd) == operators.end())
 		operators.push_back(fd);
 }
-
 
 void Channel::removeOperator(int fd)
 {
@@ -98,14 +90,12 @@ void Channel::removeOperator(int fd)
 	if (it != operators.end())
 		operators.erase(it);
 }
-//to delete items from a vector we must provid its memory address
-// we use find to get that.
+
 bool Channel::isOperator(int fd) const
 {
 	return std::find(operators.begin(), operators.end(), fd) != operators.end();
 }
 
-// --- Invite Methods (Mode i) ---
 void Channel::addInvite(int fd)
 {
 	if (std::find(invitedFds.begin(), invitedFds.end(), fd) == invitedFds.end())
@@ -124,13 +114,12 @@ bool Channel::isInvited(int fd) const
 	return std::find(invitedFds.begin(), invitedFds.end(), fd) != invitedFds.end();
 }
 
-// --- Mode Logic ---
 void Channel::setTopic(const std::string &newTopic, const std::string &setter)
 {
 	topic = newTopic;
 	topicsetter = setter;
 
-	// Update topic set time for RPL_TOPIC (332)
+	//RPL_TOPIC (332)
 	std::time_t now = std::time(0);
 	std::stringstream ss;
 	ss << now;
@@ -154,7 +143,6 @@ bool Channel::isFull() const
 	return userLimit > 0 && members.size() >= userLimit;
 }
 
-// --- Communication ---
 void Channel::broadcast(const std::string &message, int excludeFd)
 {
 	std::map<int, IClient *>::iterator it;
@@ -162,8 +150,7 @@ void Channel::broadcast(const std::string &message, int excludeFd)
 	{
 		if (it->first != excludeFd)
 		{
-			// This handoff call goes straight to your friend's engine logic
-			it->second->pushToOutputBuffer(message + "\r\n");
+			it->second->pushToOutputBuffer(message);
 		}
 	}
 }

@@ -6,18 +6,18 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:20:21 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/07 10:58:19 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/13 19:49:46 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Fakeserver.hpp"
+#include "Server.hpp"
 #include "Channel.hpp"
 
 void Server::handleTopic(IClient &client, const IRCmessage &msg)
 {
 	if (msg.params.empty())
 	{
-		client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
+		client.pushToOutputBuffer("461" + msg.command + " :Need more parameters\r\n");
 		return;
 	}
 
@@ -26,14 +26,14 @@ void Server::handleTopic(IClient &client, const IRCmessage &msg)
 	std::map<std::string, Channel *>::iterator it = this->channels.find(target);
 	if (it == this->channels.end())
 	{
-		client.pushToOutputBuffer("403 :ERR_NOSUCHCHANNEL\r\n");
+		client.pushToOutputBuffer("403" + client.getNickname() + " " + target + " :No such channel\r\n");
 		return;
 	}
 	Channel *channel = it->second;
 	// member check
 	if (!channel->isMember(client.getFd()))
 	{
-		client.pushToOutputBuffer("442 :ERR_NOTONCHANNEL\r\n");
+		client.pushToOutputBuffer("442" + client.getNickname() + " " + target + " :You're not on that channel\r\n");
 		return;
 	}
 	// view topic and set topic
@@ -46,9 +46,7 @@ void Server::handleTopic(IClient &client, const IRCmessage &msg)
 		}
 		else
 		{
-			// send the topic text
 			client.pushToOutputBuffer("332 " + client.getNickname() + " " + channel->getName() + " :" + topic + "\r\n");
-			// who set the topic and when
 			client.pushToOutputBuffer("333 " + client.getNickname() + " " + channel->getName() + " " +
 									  channel->getTopicSetter() + " " + channel->getTopicSetTime() + "\r\n");
 		}
@@ -62,13 +60,11 @@ void Server::handleTopic(IClient &client, const IRCmessage &msg)
 		{
 			if (!channel->isOperator(client.getFd()))
 			{
-				client.pushToOutputBuffer("482 :ERR_CHANOPRIVSNEEDED\r\n");
+				client.pushToOutputBuffer("482" + client.getNickname() + " " + channel->getName() + " :You're not a channel operator\r\n");
 				return;
 			}
 		}
-		// update the channel topic and topic setter
 		channel->setTopic(newTopic, client.getNickname());
-		// broadcast the topic change to all members
 		std::string topicMsg = ":" + client.getNickname() + "!~" + client.getUsername() +
 							   "@localhost TOPIC " + channel->getName() + " :" + newTopic + "\r\n";
 		channel->broadcast(topicMsg, -1);

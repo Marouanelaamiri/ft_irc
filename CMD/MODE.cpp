@@ -6,11 +6,11 @@
 /*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 03:16:55 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/04 16:19:05 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/16 12:12:27 by malaamir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Fakeserver.hpp"
+#include "Server.hpp"
 #include "Channel.hpp"
 
 void Server::handleMode(IClient &client, const IRCmessage &msg)
@@ -18,7 +18,7 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 	// params check
 	if (msg.params.empty())
 	{
-		client.pushToOutputBuffer("461 :ERR_NEEDMOREPARAMS\r\n");
+		client.pushToOutputBuffer("461" + msg.command + " :Need more parameters\r\n");
 		return;
 	}
 	std::string target = msg.params[0];
@@ -32,12 +32,11 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 	std::map<std::string, Channel *>::iterator it = this->channels.find(target);
 	if (it == this->channels.end())
 	{
-		client.pushToOutputBuffer("403 :ERR_NOSUCHCHANNEL\r\n");
+		client.pushToOutputBuffer("403 "+ client.getNickname() +" "+ target + " :No such channel\r\n");
 		return;
 	}
 
 	Channel *channel = it->second;
-	// query check (we only support channel modes for now)
 	if (msg.params.size() == 1)
 	{
 		std::string modes = channel->getchannelmodes();
@@ -47,13 +46,13 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 	// check if operator
 	if (!channel->isOperator(client.getFd()))
 	{
-		client.pushToOutputBuffer("482 :ERR_CHANOPRIVSNEEDED\r\n");
+		client.pushToOutputBuffer("482 " + target + " :Channel operator privileges required\r\n");
 		return;
 	}
 	// parse mode changes
 	std::string modeChanges = msg.params[1];
-	bool adding = true;	   // true for +, false for -
-	size_t paramIndex = 2; // index for additional parameters (like key or limit)
+	bool adding = true;
+	size_t paramIndex = 2;
 
 	for (size_t i = 0; i < modeChanges.length(); ++i)
 	{
@@ -62,15 +61,15 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 			adding = true;
 		else if (c == '-')
 			adding = false;
-		else if (c == 'i') // invite only
+		else if (c == 'i')
 		{
 			channel->setInviteOnly(adding);
 		}
-		else if (c == 't') // topic operator only
+		else if (c == 't')
 		{
 			channel->setTopicOpOnly(adding);
 		}
-		else if (c == 'k') // key (password)
+		else if (c == 'k')
 		{
 			if (adding)
 			{
@@ -85,7 +84,7 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 				channel->setKey("");
 			}
 		}
-		else if (c == 'l') // user limit
+		else if (c == 'l')
 		{
 			if (adding)
 			{
@@ -98,10 +97,10 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 			}
 			else
 			{
-				channel->setLimit(0); // 0 means no limit
+				channel->setLimit(0);
 			}
 		}
-		else if (c == 'o') // operator status (not a channel mode, but we'll handle it here for simplicity)
+		else if (c == 'o')
 		{
 			if (paramIndex < msg.params.size())
 			{
@@ -109,8 +108,8 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 				int targetFd = -1;
 
 				// find thr user by nickname
-				std::map<int, IClient *> members = channel->getMembers();
-				for (std::map<int, IClient *>::iterator it = members.begin(); it != members.end(); ++it)
+				const std::map<int, IClient *>& members = channel->getMembers();
+				for (std::map<int, IClient *>::const_iterator it = members.begin(); it != members.end(); ++it)
 				{
 					if (it->second->getNickname() == nick)
 					{
@@ -128,7 +127,7 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 				}
 				else
 				{
-					client.pushToOutputBuffer("441 " + nick + " " + target+ " :ERR_USERNOTINCHANNEL\r\n");
+					client.pushToOutputBuffer("441 " + nick + " " + target+ " : User not in channel\r\n");
 				}
 			}
 		}
@@ -139,6 +138,6 @@ void Server::handleMode(IClient &client, const IRCmessage &msg)
 	{
 		fullModeCmd += " " + msg.params[i];
 	}
-
+	fullModeCmd += "\r\n";
 	channel->broadcast(fullModeCmd, -1);
 }
