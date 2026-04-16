@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: malaamir <malaamir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bedro <bedro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/22 01:41:27 by malaamir          #+#    #+#             */
-/*   Updated: 2026/04/16 11:51:11 by malaamir         ###   ########.fr       */
+/*   Updated: 2026/04/16 14:55:09 by bedro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parser.hpp"
+#include "../INC/Parser.hpp"
 
 IRCmessage parse(std::string raw)
 {
