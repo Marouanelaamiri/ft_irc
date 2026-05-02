@@ -90,46 +90,31 @@ KICK #general Shaco :Stop spamming!        # Kick a user with a custom reason
 
 ## Project Structure
 ```text
-.
+
 ├── Makefile
 ├── README.md
-<<<<<<< HEAD
-├── CMD/
-=======
+
 ├── cmd/
->>>>>>> version1,0
 |	├── INVITE.cpp
 |	├── JOIN.cpp
 |	├── KICK.cpp
 |	├── MODE.cpp
 |	├── PRIVMSG.cpp
 |	├── TOPIC.cpp
-<<<<<<< HEAD
-├── INC/
-=======
 ├── inc/
->>>>>>> version1,0
 │   ├── Server.hpp
 │   ├── Client.hpp
 |	├── IClient.hpp
 │   ├── Channel.hpp
 │   └── Parser.hpp
-<<<<<<< HEAD
-├── SRC/
-=======
 ├── src/
->>>>>>> version1,0
 │   ├── main.cpp
 │   ├── Server.cpp
 │   ├── Client.cpp
 │   ├── Channel.cpp
 │   ├── Parser.cpp
 │   └── Commands.cpp
-<<<<<<< HEAD
-└── Bonus/
-=======
 └── bonus/
->>>>>>> version1,0
     └── bot.cpp
 ```
 
